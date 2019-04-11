@@ -1,0 +1,12 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "jsRules": {},
+    "rules": {
+        "object-literal-sort-keys": false,
+        "no-unused-expression": false
+    },
+    "rulesDirectory": ["node_modules/tslint-microsoft-contrib"]
+}

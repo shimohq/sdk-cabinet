@@ -1,0 +1,20 @@
+{
+  "name": "@shimo/sdk_cabinet",
+  "version": "1.0.0",
+  "description": "shimo sdk cabinet, which to simplify the development process",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tsc"
+  },
+  "author": "fghpdf",
+  "license": "ISC",
+  "devDependencies": {
+    "tslint": "^5.15.0",
+    "tslint-microsoft-contrib": "^6.1.0",
+    "typescript": "^3.4.2"
+  },
+  "dependencies": {
+    "eventemitter3": "^3.1.0"
+  }
+}
