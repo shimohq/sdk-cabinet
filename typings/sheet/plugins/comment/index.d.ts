@@ -1,14 +1,14 @@
 import { CommentModel } from './comment_model';
 import { CommentList } from './comment_list';
 import Editor from '../../editor';
-import { User } from '../../..';
+import { IUser } from '../../../global';
 
 
 export interface CommentOptions {
     editor: Editor
     guid: string
     container: HTMLElement
-    currentUser: User
+    currentUser: IUser
     currentFileId?: number
     mentionUrl?: string
     usePollingInsteadOfSocket?: {

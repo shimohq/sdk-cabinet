@@ -6,7 +6,8 @@
     "jsRules": {},
     "rules": {
         "object-literal-sort-keys": false,
-        "no-unused-expression": false
+        "no-unused-expression": false,
+        "no-string-literal": false
     },
     "rulesDirectory": ["node_modules/tslint-microsoft-contrib"]
 }

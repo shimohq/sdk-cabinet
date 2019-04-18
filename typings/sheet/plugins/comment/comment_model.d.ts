@@ -1,12 +1,6 @@
 import { EventEmitter } from 'eventemitter3';
 import Sheet from '../../editor/sheet';
-
-interface User {
-    avatar: string;
-    id: number;
-    isVerified: boolean;
-    name: string;
-}
+import { IUser } from '../../../global';
 
 /**
  * 评论数据层处理插件。
@@ -35,7 +29,7 @@ export declare class CommentModel extends EventEmitter {
         };
         row: number;
         col: number;
-        user: User;
+        user: IUser;
     }): Promise<any>;
     delete(commentId: string): Promise<any>;
     close({ sheet, row, col }: {

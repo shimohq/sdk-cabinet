@@ -1,7 +1,11 @@
 {
     "compilerOptions": {
         "lib": ["dom", "es6"],
-        "moduleResolution": "Node",
-        "outDir": "bundle"
-    }
+        "outDir": "bundle",
+        "module": "commonjs",
+        "target": "es5",
+    },
+    "exclude": [
+        "node_modules"
+    ]
 }
