@@ -14,6 +14,7 @@ export default class ShimoCabinet {
     private file: ShimoSDK.File;
     private editorOptions: ShimoSDK.Sheet.EditorOptions;
     private plugins: string[];
+    private onSaveStatusChange: (status: ShimoSDK.Common.CollaborationStatus) => {};
 
     constructor(options: {
         rootDom: HTMLElement;
@@ -26,6 +27,7 @@ export default class ShimoCabinet {
         file: ShimoSDK.File;
         editorOptions: ShimoSDK.Sheet.EditorOptions;
         plugins: string[];
+        onSaveStatusChange: () => {};
     }) {
         this.rootDom = options.rootDom;
         this.sdkSheet = options.sdkSheet;
@@ -37,6 +39,7 @@ export default class ShimoCabinet {
         this.file = options.file;
         this.editorOptions = options.editorOptions;
         this.plugins = options.plugins;
+        this.onSaveStatusChange = options.onSaveStatusChange;
     }
 
     public renderSheet() {
@@ -50,6 +53,7 @@ export default class ShimoCabinet {
             file: this.file,
             editorOptions: this.editorOptions,
             plugins: this.plugins,
+            onSaveStatusChange: this.onSaveStatusChange,
         });
 
         return shimoSheetCabinet.render();
@@ -66,6 +70,7 @@ export default class ShimoCabinet {
             file: this.file,
             editorOptions: this.editorOptions,
             plugins: this.plugins,
+            onSaveStatusChange: this.onSaveStatusChange,
         });
 
         return shimoDocumentCabinet.render();

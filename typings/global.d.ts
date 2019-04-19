@@ -42,6 +42,8 @@ declare global {
         namespace Common {
             export type Collaboration = ICollaboration.default
             export type CollaborationOptions = ICollaboration.CollaborationOptions
+            export type CollaborationEvents = ICollaboration.Events
+            export type CollaborationStatus = ICollaboration.Status
         }
 
         namespace Sheet {
@@ -76,7 +78,6 @@ declare global {
             export type GalleryOptions = IDocGallery.GalleryOptions
             export type History = IDocHistory.default
             export type HistoryOptions = IDocHistory.HistoryOptions
-            export type HistoryRenderOptions = IDocHistory.HistoryRenderOptions
             export type TableOfContent = IDocTableOfContent.default
             export type TableOfContentOptions = IDocTableOfContent.TableOfContentOptions
             export type Collaborator = IDocCollaborator.default
@@ -87,6 +88,7 @@ declare global {
             export type DemoScreenOptions = IDocDemoScreen.DemoScreenOptions
             export type Uploader = IDocUploader.default
             export type UploaderOptions = IDocUploader.UploaderOptions
+            export type UploaderEvents = IDocUploader.Events
             export type Shortcut = IDocShortcut.default
             export type ShortcutOptions = IDocShortcut.ShortcutOptions
         }

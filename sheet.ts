@@ -2,26 +2,6 @@
 
 import CabinetBase from "./base";
 
-enum Events {
-    error = "error",
-    saveStatusChange = "saveStatusChange",
-    broadcast = "broadcast",
-    enter = "enter",
-    leave = "leave",
-}
-
-enum Status {
-    OFFLINE = "offline",
-    OFFLINE_SAVING = "offlineSaving",
-    OFFLINE_SAVED = "offlineSaved",
-    OFFLINE_SAVE_FAILED = "offlineSaveFailed",
-    ONLINE = "online",
-    ONLINE_SAVING = "onlineSaving",
-    ONLINE_SAVED = "onlineSaved",
-    ONLINE_SAVE_FAILED = "onlineSaveFailed",
-    SERVER_CHANGE_APPLIED = "serverChangeApplied",
-}
-
 export default class ShimoSheetCabinet extends CabinetBase {
     private sdkSheet: any;
     private sdkCommon: any;
@@ -42,8 +22,9 @@ export default class ShimoSheetCabinet extends CabinetBase {
         file: ShimoSDK.File;
         editorOptions: ShimoSDK.Sheet.EditorOptions;
         plugins: string[];
+        onSaveStatusChange: (status: ShimoSDK.Common.CollaborationStatus) => {}
     }) {
-        super(options.rootDom);
+        super(options.rootDom, options.onSaveStatusChange);
         this.sdkSheet = options.sdkSheet;
         this.sdkCommon = options.sdkCommon;
         this.user = options.user;
@@ -198,25 +179,7 @@ export default class ShimoSheetCabinet extends CabinetBase {
         };
         const collaboration: ShimoSDK.Common.Collaboration = new this.sdkCommon.Collaboration(collaborationOptions);
         collaboration.start();
-        collaboration.on(Events.saveStatusChange, this.onSaveStatusChange);
-    }
-
-    public onSaveStatusChange(status: string) {
-        switch (status) {
-          case Status.ONLINE_SAVING:
-            break;
-          case Status.ONLINE_SAVED:
-            break;
-          case Status.OFFLINE:
-            break;
-          case Status.ONLINE:
-            break;
-          // 在线保存失败
-          case Status.ONLINE_SAVE_FAILED:
-            break;
-          case Status.OFFLINE_SAVE_FAILED:
-            break;
-        }
+        collaboration.on("saveStatusChange" as ShimoSDK.Common.CollaborationEvents, this.onSaveStatusChange);
     }
 
     private sortPlugins(plugins: string[]) {

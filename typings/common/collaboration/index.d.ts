@@ -26,6 +26,7 @@ export enum Events {
 }
 
 export interface CollaborationOptions {
+    type?: string;
     rev: number;
     guid: string;
     pullUrl: string;

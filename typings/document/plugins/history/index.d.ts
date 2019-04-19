@@ -11,13 +11,9 @@ export interface HistoryOptions {
     }
 }
 
-export interface HistoryRenderOptions {
-    container: HTMLElement;
-}
-
 export default class History {
     constructor(options: HistoryOptions);
-    public render(HistoryRenderOptions): void;
+    public render(container: HTMLElement): void;
     public update(): void;
     public show(): void;
     public hide(): void;

@@ -20,8 +20,9 @@ export default class ShimoDocumentCabinet extends CabinetBase {
         file: ShimoSDK.File;
         editorOptions: ShimoSDK.Sheet.EditorOptions;
         plugins: string[];
+        onSaveStatusChange: (status: ShimoSDK.Common.CollaborationStatus) => {}
     }) {
-        super(options.rootDom);
+        super(options.rootDom, options.onSaveStatusChange);
         this.sdkCommon = options.sdkCommon;
         this.sdkDocument = options.sdkDocument;
         this.user = options.user;
@@ -41,10 +42,16 @@ export default class ShimoDocumentCabinet extends CabinetBase {
         if (typeof this.editorOptions.editable === "undefined") {
             this.editorOptions.editable = true;
         }
+
+        const toolbarContainer = this.getDom("toolbar-wrapper");
+
         editor.render(this.getDom("editor"), {
             readOnly: !this.editorOptions.editable,
             id: this.user.id,
             localeConfig,
+            modules: {
+                toolbar: { parent: toolbarContainer },
+            },
         });
         editor.setContent(this.file.content);
         for (const plugin of this.plugins) {
@@ -85,13 +92,30 @@ export default class ShimoDocumentCabinet extends CabinetBase {
         };
 
         const history: ShimoSDK.Document.History = new this.sdkDocument.plugins.History(options);
-        const clickDom = this.getDom("external-actions").appendChild(this.getDom("external-actions-history"));
-        if (!this.getDom("external-actions-history").innerText) {
-            this.getDom("external-actions-history").innerText = "历史";
+        const historyShowContainer = this.getDom("history-content");
+        history.render(historyShowContainer);
+
+        const clickDom = this.getDom("ql-history", null, "button");
+        clickDom.setAttribute("type", "button");
+        clickDom.classList.add("ql-history");
+
+        if (!this.getDom("ql-history").innerText) {
+            this.getDom("ql-history").innerText = "历史";
+        }
+
+        const toolbarGroup = document.getElementsByClassName("ql-toolbar-default")[0]
+            .getElementsByClassName("ql-formats");
+        const historyContainer = toolbarGroup[toolbarGroup.length - 1];
+        if (historyContainer) {
+            historyContainer.appendChild(clickDom);
         }
 
         clickDom.addEventListener("click", () => {
             history.show();
+        });
+
+        document.getElementById("history-close-btn").addEventListener("click", () => {
+            history.hide();
         });
     }
 
@@ -119,6 +143,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
             = new this.sdkDocument.plugins.Collaborator(options);
         const collaborationOptions: ShimoSDK.Common.CollaborationOptions = {
             editor,
+            type: "richdoc",
             rev: this.file.head,
             guid: this.file.guid,
             pullUrl: `${this.entrypoint}/files/${this.file.guid}/pull?accessToken=${this.token}`,
@@ -130,6 +155,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
         const collaboration: ShimoSDK.Common.Collaboration = new this.sdkCommon.Collaboration(collaborationOptions);
         collaboration.start();
         collaborators.render(collaboration);
+        collaboration.on("saveStatusChange" as ShimoSDK.Common.CollaborationEvents, this.onSaveStatusChange);
     }
 
     public initComment(editor: ShimoSDK.Document.Editor): void {
@@ -163,10 +189,11 @@ export default class ShimoDocumentCabinet extends CabinetBase {
             editor,
             container: "#editor",
             url: this.editorOptions.uploadConfig.origin,
-            tokenUrl: this.editorOptions.uploadConfig.token,
+            accessToken: this.editorOptions.uploadConfig.token,
         };
 
         const uploader: ShimoSDK.Document.Uploader = new this.sdkDocument.plugins.Uploader(options);
+        uploader.on("FAIL" as ShimoSDK.Document.UploaderEvents, this.onFail);
         return uploader;
     }
 
@@ -204,5 +231,9 @@ export default class ShimoDocumentCabinet extends CabinetBase {
         }
 
         return selectedPlugins;
+    }
+
+    private onFail() {
+        window.alert("操作失败");
     }
 }
