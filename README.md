@@ -40,6 +40,7 @@ shimoCabinet.renderSheet();
 完整示例在 example 目录 
 
 **参数**
+
 | 名称               | 类型      | 默认值  | 描述             |
 | ------------------ | --------- | ------- | ---------------- |
 | options.rootDom | HTMLElement | 必选 | 石墨表格渲染所需的根 DOM |
