@@ -18,9 +18,9 @@ export default class ShimoCabinet {
 
     constructor(options: {
         rootDom: HTMLElement;
-        sdkSheet: any;
+        sdkSheet?: any;
         sdkCommon: any;
-        sdkDocument: any;
+        sdkDocument?: any;
         user: ShimoSDK.User;
         entrypoint: string;
         token: string;
