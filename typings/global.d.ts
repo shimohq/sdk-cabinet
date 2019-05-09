@@ -11,6 +11,7 @@ import * as IFormulaSidebar from "./sheet/plugins/formulaSidebar";
 import * as IHistorySidebarSkeleton from "./sheet/plugins/historySidebarSkeleton";
 import * as IShortcut from "./sheet/plugins/shortcut";
 import * as IToolbar from "./sheet/plugins/toolbar";
+import * as ILock from "./sheet/plugins/lock";
 
 import * as IDocEditor from "./document/editor";
 import * as IDocGallery from "./document/plugins/gallery";
@@ -27,6 +28,7 @@ interface IUser {
     id: number;
     isVerified: boolean;
     name: string;
+    permission?: ILock.PermissionConfig; 
 }
 
 interface IFile {
@@ -69,6 +71,8 @@ declare global {
             export type ShortcutOptions = IShortcut.ShortcutOptions
             export type Toolbar = IToolbar.default
             export type ToolbarOptions = IToolbar.ToolbarOptions
+            export type Lock = ILock.default
+            export type LockOptions = ILock.LockOptions
         }
 
         namespace Document {

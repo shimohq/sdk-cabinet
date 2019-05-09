@@ -10,6 +10,7 @@ export default class ShimoSheetCabinet extends CabinetBase {
     private token: string;
     private file: ShimoSDK.File;
     private editorOptions: ShimoSDK.Sheet.EditorOptions;
+    private fetchCollaborators: string;
     private plugins: string[];
 
     constructor(options: {
@@ -22,6 +23,7 @@ export default class ShimoSheetCabinet extends CabinetBase {
         file: ShimoSDK.File;
         editorOptions: ShimoSDK.Sheet.EditorOptions;
         plugins: string[];
+        fetchCollaborators: string;
         onSaveStatusChange: (status: ShimoSDK.Common.CollaborationStatus) => {}
     }) {
         super(options.rootDom, options.onSaveStatusChange);
@@ -32,6 +34,7 @@ export default class ShimoSheetCabinet extends CabinetBase {
         this.token = options.token;
         this.file = options.file;
         this.editorOptions = options.editorOptions;
+        this.fetchCollaborators = options.fetchCollaborators;
         this.plugins =  this.sortPlugins(options.plugins);
     }
 
@@ -182,6 +185,18 @@ export default class ShimoSheetCabinet extends CabinetBase {
         collaboration.on("saveStatusChange" as ShimoSDK.Common.CollaborationEvents, this.onSaveStatusChange);
     }
 
+    public initLock(editor: ShimoSDK.Sheet.Editor): void {
+        const options: ShimoSDK.Sheet.LockOptions = {
+            editor,
+            currentUser: {
+                id: this.user.id,
+            },
+            permission: this.user.permission,
+            fetchCollaborators: this.fetchCollaborators,
+        };
+        new this.sdkSheet.plugins.Lock(options);
+    }
+
     private sortPlugins(plugins: string[]) {
         const sortedPlugins = ["Toolbar",
         "ContextMenu",
@@ -192,6 +207,7 @@ export default class ShimoSheetCabinet extends CabinetBase {
         "FilterViewport",
         "Chart",
         "Comment",
+        "Lock",
         "Collaboration"];
         const commingPlugins = new Set(plugins);
         const selectedPlugins: string[] = [];
