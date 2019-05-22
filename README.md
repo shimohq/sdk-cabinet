@@ -11,9 +11,11 @@
 
 该模块仅简化开发流程，仍然需要 SDK 前端以及后端组件
 
+简易开发模块完全开源，可供参考和学习，如有建议或问题可在项目 issue 提出
+
 ## 用法
 
-### 石墨表格
+### 快速开始
 
 #### 通过引入 js 文件进行
 ```html
@@ -45,9 +47,9 @@ shimoCabinet.renderSheet(); // 渲染表格
 shimoCabinet.renderDocument(); // 渲染文档
 ```
 
-完整示例在 example 目录 
+完整示例在 [example 目录 ](https://github.com/shimohq/sdk-cabinet/tree/develop/example)
 
-**参数**
+### **参数**
 
 | 名称               | 类型      | 默认值  | 描述             |
 | ------------------ | --------- | ------- | ---------------- |
@@ -80,4 +82,33 @@ shimoCabinet.renderDocument(); // 渲染文档
 | options.editorOptions.downloadConfig.origin | string | 必选 | 下载服务的地址 |
 | options.plugins | string[] | [] | 开启插件列表 |
 
+## 资源获取
 
+### 官方打包文件下载（内含 SDK 静态资源）
+[Release下载](https://github.com/shimohq/sdk-cabinet/releases/latest)
+
+### 源代码打包（不含 SDK 静态资源）
+```shell
+npm run build
+cp ./dist/index.min.js your/workspace
+```
+
+## 友好提示
+
+### 相关参数获取方式
+ * sdkDocument: 引入石墨文档 SDK 静态资源之后，会暴露为 window.shimo.sdk.document
+ * sdkSheet: 引入石墨表格 SDK 静态资源之后，会暴露为 window.shimo.sdk.sheet
+ * sdkCommon: 引入石墨通用通信 SDK 静态资源之后，会暴露为 window.shimo.sdk.common
+ * entrypoint: 石墨 SDK 后端总入口
+ * user: 石墨 SDK 后端服务返回
+ * token: 石墨 SDK 后端服务返回
+ * file: 石墨 SDK 后端服务返回
+ * uploadConfig: 石墨 SDK 上传服务相关配置，和石墨 SDK 后端服务有区别
+
+
+ ### 测试数据
+ 空白表格的 content :
+ ```"q:p!g@T7$5:4!5k#4:3!i# 0 1 2["B:工作表1","C*0","G:MODOC"]"```
+
+ 空白文档的 content :
+ ```"[[10, "\n", "line:\"init\""]]"```
