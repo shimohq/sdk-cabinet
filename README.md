@@ -22,7 +22,11 @@
     // prepare 等待后端请求返回之后的函数
     window.shimo.prepare().then(function() {
         var cabinet = new ShimoCabinet.default(options)
-        window.sheetEditor = cabinet.renderSheet()
+        window.sheetEditor = cabinet.renderSheet() // 渲染表格
+
+        // 或者
+
+        window.renderDocument = cabinet.renderDocument() // 渲染文档
     })
 </script>
 ```
@@ -34,7 +38,11 @@
 import * from "@shimo/sdk_cabinet";
 
 const shimoCabinet = new ShimoCabinet(options);
-shimoCabinet.renderSheet();
+shimoCabinet.renderSheet(); // 渲染表格
+
+// 或者
+
+shimoCabinet.renderDocument(); // 渲染文档
 ```
 
 完整示例在 example 目录 
@@ -45,6 +53,7 @@ shimoCabinet.renderSheet();
 | ------------------ | --------- | ------- | ---------------- |
 | options.rootDom | HTMLElement | 必选 | 石墨表格渲染所需的根 DOM |
 | options.sdkSheet | object | 无 | 石墨表格 SDK 组件 |
+| options.sdkDocument | object | 无 | 石墨文档 SDK 组件 |
 | options.sdkCommon | object | 必选 | 石墨公共通信组件 |
 | options.user | object | 必选 | 用户信息 |
 | options.user.avatar | string | 必选 | 用户头像地址 |

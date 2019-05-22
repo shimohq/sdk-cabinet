@@ -1,5 +1,41 @@
 import CabinetBase from "./base";
 
+const historyContainerTemplate = `
+    <div class="history-sidebar">
+        <div class="history-container">
+            <div class="history-head">
+                <b>历史</b>
+                <a style="float: right;" class="history-close-btn" href="javascript:void(0);">关闭</a>
+            </div>
+            <div class="history-content" id="history-content"></div>
+        </div>
+    </div>
+`;
+
+const historyCSSClassTemplate = `
+    .history-siderbar = {
+        height: calc(100% - 45px);
+    }
+
+    .history-container {
+        position: fixed;
+        display: none;
+        top: 100px;
+        right: 10px;
+        width: 340px;
+        height: 100%;
+        padding: 20px;
+        border: 1px solid #d9d9d9;
+        background: #f9f9f9;
+    }
+
+    .history-close-btn {
+        text-decoration:none;
+        font-size: 12px;
+        color: #555;
+    }
+`;
+
 export default class ShimoDocumentCabinet extends CabinetBase {
     private sdkCommon: any;
     private sdkDocument: any;
@@ -91,6 +127,15 @@ export default class ShimoDocumentCabinet extends CabinetBase {
             },
         };
 
+        if (!document.querySelector("history-sidebar")) {
+            const style = document.createElement("style");
+            style.type = "text/css";
+            style.innerHTML = historyCSSClassTemplate;
+            document.getElementsByTagName("head")[0].appendChild(style);
+
+            this.rootDom.insertAdjacentHTML("afterend", historyContainerTemplate);
+        }
+
         const history: ShimoSDK.Document.History = new this.sdkDocument.plugins.History(options);
         const historyShowContainer = this.getDom("history-content");
         history.render(historyShowContainer);
@@ -105,17 +150,21 @@ export default class ShimoDocumentCabinet extends CabinetBase {
 
         const toolbarGroup = document.getElementsByClassName("ql-toolbar-default")[0]
             .getElementsByClassName("ql-formats");
-        const historyContainer = toolbarGroup[toolbarGroup.length - 1];
-        if (historyContainer) {
-            historyContainer.appendChild(clickDom);
+        const toolbarContainer = toolbarGroup[toolbarGroup.length - 1];
+        if (toolbarContainer) {
+            toolbarContainer.appendChild(clickDom);
         }
 
+        const historyContainer: HTMLElement = document.querySelector(".history-container");
+
         clickDom.addEventListener("click", () => {
-            history.show();
+            historyContainer.style.display = "block";
+            editor.comment.hide();
         });
 
-        document.getElementById("history-close-btn").addEventListener("click", () => {
-            history.hide();
+        document.querySelector(".history-close-btn").addEventListener("click", () => {
+            historyContainer.style.display = "none";
+            editor.comment.show();
         });
     }
 
@@ -173,6 +222,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
         };
 
         const comment: ShimoSDK.Document.Comment = new this.sdkDocument.plugins.Comment(options);
+        editor.comment = comment;
         comment.render();
         comment.show();
     }
