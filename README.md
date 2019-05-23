@@ -76,7 +76,7 @@ shimoCabinet.renderDocument(); // 渲染文档
 | options.editorOptions.localeConfig.locale | string | zh-CN | 设置当前语言 |
 | options.editorOptions.uploadConfig | object | 可选 | 上传配置 |
 | options.editorOptions.uploadConfig.origin | string | 必选 | 上传服务的地址 |
-| options.editorOptions.uploadConfig.server |	string | 必选 |	存储服务类型, eg, 'qinniu', 'aws' |
+| options.editorOptions.uploadConfig.server |	string | 必选 |	存储服务类型, 公有云：'oss', 私有云：'aws' |
 | options.editorOptions.uploadConfig.token | string	| 必选	| 上传服务鉴权秘钥 |
 | options.editorOptions.downloadConfig | Object |	可选 |	下载图片配置 |
 | options.editorOptions.downloadConfig.origin | string | 必选 | 下载服务的地址 |
@@ -96,9 +96,9 @@ cp ./dist/index.min.js your/workspace
 ## 友好提示
 
 ### 相关参数获取方式
+ * sdkCommon: 引入石墨通用通信 SDK 静态资源之后，会暴露为 window.shimo.sdk.common，需要在 sdkDocument 或者 sdkSheet 之前引入
  * sdkDocument: 引入石墨文档 SDK 静态资源之后，会暴露为 window.shimo.sdk.document
  * sdkSheet: 引入石墨表格 SDK 静态资源之后，会暴露为 window.shimo.sdk.sheet
- * sdkCommon: 引入石墨通用通信 SDK 静态资源之后，会暴露为 window.shimo.sdk.common
  * entrypoint: 石墨 SDK 后端总入口
  * user: 石墨 SDK 后端服务返回
  * token: 石墨 SDK 后端服务返回

@@ -51,7 +51,7 @@
 </body>
 
 <script>
-    window.shimo = {
+    window.shimoParameter = {
         token: '',
         uploadToken: '',
         uploadOrigin: '',
@@ -60,35 +60,34 @@
         entrypoint: '',
         user: {"id":1,"email":"","name":"fghpdf","avatar":"https://assets-cdn.shimo.im/static/unmd5/default-avatar-moke.png","namePinyin":null,"status":0,"gender":null,"lastNotificationId":null,"clientUserId":"1","createdAt":"2018-12-12T06:54:20.000Z","updatedAt":"2019-03-10T18:08:18.000Z"},
         prepare: function () {
-        return axios.get(window.shimo.entrypoint + '/files/TnVjhyiTbwV7EtqK', {
+        return axios.get(window.shimoParameter.entrypoint + '/files/TnVjhyiTbwV7EtqK', {
             headers: {
-            authorization: 'bearer ' + window.shimo.token
+            authorization: 'bearer ' + window.shimoParameter.token
             }
         }).then(function (res) {
-            window.shimo.file = res.data
+            window.shimoParameter.file = res.data
         })
         }
     }
-    window.__env = { channel: 'cloud' }
 
-  window.shimo.prepare().then(function () {
+  window.shimoParameter.prepare().then(function () {
     var cabinet = new ShimoCabinet.default({
       rootDom: document.getElementById("container"),
       sdkDocument: window.shimo.sdk.document,
       sdkCommon: window.shimo.sdk.common,
-      user: window.shimo.user,
-      entrypoint: window.shimo.entrypoint,
-      token: window.shimo.token,
-      file: window.shimo.file,
+      user: window.shimoParameter.user,
+      entrypoint: window.shimoParameter.entrypoint,
+      token: window.shimoParameter.token,
+      file: window.shimoParameter.file,
       editorOptions: {
         uploadConfig: {
-          origin: window.shimo.uploadOrigin,
-          server: window.shimo.uploadServer,
-          token: window.shimo.uploadToken,
-          maxFileSize: window.shimo.uploadMaxFileSize
+          origin: window.shimoParameter.uploadOrigin,
+          server: window.shimoParameter.uploadServer,
+          token: window.shimoParameter.uploadToken,
+          maxFileSize: window.shimoParameter.uploadMaxFileSize
         },
         downloadConfig: {
-          origin: window.shimo.uploadOrigin + '/upload2'
+          origin: window.shimoParameter.uploadOrigin + '/upload2'
         }
       },
       plugins: ["Collaboration",
