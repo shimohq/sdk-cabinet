@@ -2,3 +2,5 @@ node_modules
 index.js
 bundle
 dist
+*.go
+go.mod

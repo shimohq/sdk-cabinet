@@ -33,6 +33,8 @@
 </script>
 ```
 
+ps: 容器 id 请勿使用 sm-editor toolbar-wrapper ql-history history-sidebar history-content history-container
+
 #### 通过 typescript 方式开发
 我们提供了完整的 type 来提升开发体验
 

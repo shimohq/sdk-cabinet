@@ -81,7 +81,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
 
         const toolbarContainer = this.getDom("toolbar-wrapper");
 
-        editor.render(this.getDom("editor"), {
+        editor.render(this.getDom("sm-editor"), {
             readOnly: !this.editorOptions.editable,
             id: this.user.id,
             localeConfig,
@@ -237,9 +237,10 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     public initUploader(editor: ShimoSDK.Document.Editor): ShimoSDK.Document.Uploader {
         const options: ShimoSDK.Document.UploaderOptions = {
             editor,
-            container: "#editor",
+            container: "#sm-editor",
             url: this.editorOptions.uploadConfig.origin,
             accessToken: this.editorOptions.uploadConfig.token,
+            type: this.editorOptions.uploadConfig.server,
         };
 
         const uploader: ShimoSDK.Document.Uploader = new this.sdkDocument.plugins.Uploader(options);
