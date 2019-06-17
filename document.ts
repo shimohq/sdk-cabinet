@@ -37,6 +37,7 @@ const historyCSSClassTemplate = `
 `;
 
 export default class ShimoDocumentCabinet extends CabinetBase {
+    public editor: ShimoSDK.Document.Editor;
     private sdkCommon: any;
     private sdkDocument: any;
     private user: ShimoSDK.User;
@@ -45,6 +46,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     private entrypoint: string;
     private token: string;
     private plugins: string[];
+    private collaboration: ShimoSDK.Common.Collaboration;
 
     constructor(options: {
         rootDom: HTMLElement;
@@ -94,7 +96,14 @@ export default class ShimoDocumentCabinet extends CabinetBase {
             this[`init${plugin}`](editor);
         }
 
+        this.editor = editor;
+
         return editor;
+    }
+
+    public destroy(): void {
+        this.editor.destroy();
+        this.collaboration.destroy();
     }
 
     public initEditor(): ShimoSDK.Document.Editor {
@@ -204,6 +213,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
         const collaboration: ShimoSDK.Common.Collaboration = new this.sdkCommon.Collaboration(collaborationOptions);
         collaboration.start();
         collaborators.render(collaboration);
+        this.collaboration = collaboration;
         collaboration.on("saveStatusChange" as ShimoSDK.Common.CollaborationEvents, this.onSaveStatusChange);
     }
 

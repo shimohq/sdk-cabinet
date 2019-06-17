@@ -26,9 +26,14 @@
         var cabinet = new ShimoCabinet.default(options)
         window.sheetEditor = cabinet.renderSheet() // 渲染表格
 
+        cabinet.destroySheet() // 销毁
+
         // 或者
 
-        window.renderDocument = cabinet.renderDocument() // 渲染文档
+        window.documentEditor = cabinet.renderDocument() // 渲染文档
+
+        cabinet.destroyDocument() // 销毁
+
     })
 </script>
 ```

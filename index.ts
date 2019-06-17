@@ -15,6 +15,8 @@ export default class ShimoCabinet {
     private editorOptions: ShimoSDK.Sheet.EditorOptions;
     private plugins: string[];
     private fetchCollaborators: string;
+    private shimoSheetCabinet: ShimoSheetCabinet;
+    private shimoDocumentCabinet: ShimoDocumentCabinet;
     private onSaveStatusChange: (status: ShimoSDK.Common.CollaborationStatus) => {};
 
     constructor(options: {
@@ -60,7 +62,16 @@ export default class ShimoCabinet {
             onSaveStatusChange: this.onSaveStatusChange,
         });
 
+        this.shimoSheetCabinet = shimoSheetCabinet;
+
         return shimoSheetCabinet.render();
+    }
+
+    public destroySheet() {
+        if (!this.shimoSheetCabinet) {
+            throw new Error("shimoSheetCabinet needs render");
+        }
+        this.shimoSheetCabinet.destroy();
     }
 
     public renderDocument() {
@@ -77,8 +88,18 @@ export default class ShimoCabinet {
             onSaveStatusChange: this.onSaveStatusChange,
         });
 
+        this.shimoDocumentCabinet = shimoDocumentCabinet;
+
         return shimoDocumentCabinet.render();
     }
+
+    public destroyDocument() {
+        if (!this.shimoDocumentCabinet) {
+            throw new Error("shimoDocumentCabinet needs render");
+        }
+        this.shimoDocumentCabinet.destroy();
+    }
+
 }
 export {
     ShimoDocumentCabinet,

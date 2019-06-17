@@ -3,6 +3,7 @@
 import CabinetBase from "./base";
 
 export default class ShimoSheetCabinet extends CabinetBase {
+    public editor: ShimoSDK.Document.Editor;
     private sdkSheet: any;
     private sdkCommon: any;
     private user: ShimoSDK.User;
@@ -12,6 +13,7 @@ export default class ShimoSheetCabinet extends CabinetBase {
     private editorOptions: ShimoSDK.Sheet.EditorOptions;
     private fetchCollaborators: string;
     private plugins: string[];
+    private collaboration: ShimoSDK.Common.Collaboration;
 
     constructor(options: {
         rootDom: HTMLElement;
@@ -54,6 +56,11 @@ export default class ShimoSheetCabinet extends CabinetBase {
         }
 
         return editor;
+    }
+
+    public destroy(): void {
+        this.editor.destroy();
+        this.collaboration.destroy();
     }
 
     public initEditor(options: ShimoSDK.Sheet.EditorOptions): ShimoSDK.Sheet.Editor {
@@ -182,6 +189,7 @@ export default class ShimoSheetCabinet extends CabinetBase {
         };
         const collaboration: ShimoSDK.Common.Collaboration = new this.sdkCommon.Collaboration(collaborationOptions);
         collaboration.start();
+        this.collaboration = collaboration;
         collaboration.on("saveStatusChange" as ShimoSDK.Common.CollaborationEvents, this.onSaveStatusChange);
     }
 
