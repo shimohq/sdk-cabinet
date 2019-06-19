@@ -19,7 +19,11 @@
 
 #### 通过引入 js 文件进行
 ```html
-<div id="container"></div>
+<div id="container" style="
+    height: 100%;
+    overflow: hidden; 
+    /* 这里的样式可以自定义 */
+"></div>
 <script>
     // prepare 等待后端请求返回之后的函数
     window.shimo.prepare().then(function() {

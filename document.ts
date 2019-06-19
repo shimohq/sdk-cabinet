@@ -36,6 +36,17 @@ const historyCSSClassTemplate = `
     }
 `;
 
+const toolbarCSSClassTemplate = `
+    .sm-editor-scroller {
+        height: calc(100% - 46px);
+        overflow: auto;
+    }
+
+    .sm-toolbar-wrapper.active {
+        border-bottom: 1px solid #F7F7F7;
+    }
+`;
+
 export default class ShimoDocumentCabinet extends CabinetBase {
     public editor: ShimoSDK.Document.Editor;
     private sdkCommon: any;
@@ -82,8 +93,16 @@ export default class ShimoDocumentCabinet extends CabinetBase {
         }
 
         const toolbarContainer = this.getDom("toolbar-wrapper");
+        const editorScroller = this.getDom("sm-editor-scroller");
+        toolbarContainer.className += "sm-toolbar-wrapper";
+        editorScroller.className += "sm-editor-scroller";
 
-        editor.render(this.getDom("sm-editor"), {
+        const style = document.createElement("style");
+        style.type = "text/css";
+        style.innerHTML = historyCSSClassTemplate + toolbarCSSClassTemplate;
+        document.getElementsByTagName("head")[0].appendChild(style);
+
+        editor.render(this.getDom("sm-editor", editorScroller), {
             readOnly: !this.editorOptions.editable,
             id: this.user.id,
             localeConfig,
@@ -92,6 +111,17 @@ export default class ShimoDocumentCabinet extends CabinetBase {
             },
         });
         editor.setContent(this.file.content);
+
+        editorScroller.addEventListener("scroll", () => {
+            setTimeout(() => {
+                if (editorScroller.scrollTop === 0) {
+                    toolbarContainer.classList.remove("active");
+                } else {
+                    toolbarContainer.classList.add("active");
+                }
+            }, 0);
+        });
+
         for (const plugin of this.plugins) {
             this[`init${plugin}`](editor);
         }
@@ -137,11 +167,6 @@ export default class ShimoDocumentCabinet extends CabinetBase {
         };
 
         if (!document.querySelector("history-sidebar")) {
-            const style = document.createElement("style");
-            style.type = "text/css";
-            style.innerHTML = historyCSSClassTemplate;
-            document.getElementsByTagName("head")[0].appendChild(style);
-
             this.rootDom.insertAdjacentHTML("afterend", historyContainerTemplate);
         }
 

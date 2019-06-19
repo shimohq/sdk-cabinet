@@ -3,7 +3,7 @@
 import CabinetBase from "./base";
 
 export default class ShimoSheetCabinet extends CabinetBase {
-    public editor: ShimoSDK.Document.Editor;
+    public editor: ShimoSDK.Sheet.Editor;
     private sdkSheet: any;
     private sdkCommon: any;
     private user: ShimoSDK.User;
@@ -54,6 +54,20 @@ export default class ShimoSheetCabinet extends CabinetBase {
         if (referenceNode) {
             this.insertAfter(referenceNode, this.getDom("editor"));
         }
+
+        editor.on(this.sdkSheet.sheets.Events, (msg) => {
+            this.sdkSheet.sheets.utils.confirm({
+                title: "表格异常",
+                description: '表格出现异常，无法编辑，请刷新后继续使用。<br /><i style="font-size:12px;color:#ccc;">' + msg + "</i>",
+                buttons: [
+                {
+                  type: "button",
+                  buttonLabel: "确定",
+                  customClass: "btn-ok",
+                  closeAfterClick: true,
+                }],
+            });
+        });
 
         return editor;
     }
