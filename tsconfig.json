@@ -1,11 +1,15 @@
 {
-    "compilerOptions": {
-        "lib": ["dom", "es6"],
-        "outDir": "bundle",
-        "module": "commonjs",
-        "target": "es5",
-    },
-    "exclude": [
-        "node_modules"
-    ]
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "es6"
+    ],
+    "outDir": "bundle",
+    "module": "commonjs",
+    "target": "es5",
+    "strictNullChecks": true
+  },
+  "exclude": [
+    "node_modules"
+  ]
 }

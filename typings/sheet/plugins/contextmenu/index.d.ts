@@ -1,12 +1,12 @@
-import Editor from '../../editor';
+import Editor from '../../editor'
 export interface SheetContextmenuOptions {
-    editor: Editor;
+  editor: Editor
 }
 interface SheetContextmenuRenderOptions {
-    container?: Element;
+  container?: Element
 }
 export default class SheetContextmenu {
-    constructor(opts: SheetContextmenuOptions);
-    render(config: SheetContextmenuRenderOptions): void;
+  constructor (opts: SheetContextmenuOptions);
+  render (config: SheetContextmenuRenderOptions): void
 }
-export {};
+export {}

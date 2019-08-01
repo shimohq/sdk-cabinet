@@ -1,10 +1,10 @@
-import { EventEmitter } from 'eventemitter3';
-import Editor from '../../editor/editor';
+import { EventEmitter } from 'eventemitter3'
+import Editor from '../../editor/editor'
 
 export interface CollaboratorsOptions {
-    editor: Editor;
+  editor: Editor
 }
 
 export default class Collaborators extends EventEmitter {
-    constructor(options: Collaborators);
+  constructor (options: Collaborators);
 }

@@ -1,5 +1,5 @@
 export declare class CommentList {
-    constructor();
-    render(container: HTMLElement): void;
+  constructor ();
+  render (container: HTMLElement): void
 }
-export {};
+export {}

@@ -1,9 +1,9 @@
-import Editor from "../../editor";
+import Editor from '../../editor'
 
 export interface ShortcutOptions {
-    editor: Editor;
+  editor: Editor
 }
 export default class Shortcut {
-    constructor(opts: ShortcutOptions);
+  constructor (opts: ShortcutOptions);
 }
-export {};
+export {}

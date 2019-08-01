@@ -1,10 +1,10 @@
-import Editor from "../../editor";
+import Editor from '../../editor'
 
 export interface FillOptions {
-    editor: Editor;
+  editor: Editor
 }
-export declare const fillPluginName = "Fill";
+export declare const fillPluginName = 'Fill'
 export default class Fill {
-    constructor(options: FillOptions);
+  constructor (options: FillOptions);
 }
-export {};
+export {}
