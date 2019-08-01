@@ -18,13 +18,15 @@ interface Collaborator {
   displayRole?: string | undefined
 }
 
+export type FetchCollaboratorsCallback = () => Promise<Collaborator[]>
+
 export interface LockOptions {
   editor: Editor
   currentUser: {
     id: number
   }
   permission: PermissionConfig
-  fetchCollaborators: string
+  fetchCollaborators: string | FetchCollaboratorsCallback
 }
 export default class Lock {
   constructor (opts: LockOptions);

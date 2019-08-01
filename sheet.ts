@@ -9,7 +9,7 @@ export default class ShimoSheetCabinet extends CabinetBase {
   private token: string
   private file: ShimoSDK.File
   private editorOptions: ShimoSDK.Sheet.EditorOptions
-  private fetchCollaborators: string
+  private fetchCollaborators: string | ShimoSDK.Sheet.FetchCollaboratorsCallback
   private plugins: string[]
   private collaboration: ShimoSDK.Common.Collaboration
 
@@ -212,7 +212,7 @@ export default class ShimoSheetCabinet extends CabinetBase {
       currentUser: {
         id: this.user.id
       },
-      permission: this.user.permission,
+      permission: this.user.permission!,
       fetchCollaborators: this.fetchCollaborators
     }
     const _ = new this.sdkSheet.plugins.Lock(options)

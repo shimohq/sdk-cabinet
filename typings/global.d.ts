@@ -73,6 +73,7 @@ declare global {
       export type ToolbarOptions = IToolbar.ToolbarOptions
       export type Lock = ILock.default
       export type LockOptions = ILock.LockOptions
+      export type FetchCollaboratorsCallback = ILock.FetchCollaboratorsCallback
     }
 
     namespace Document {
