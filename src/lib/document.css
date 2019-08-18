@@ -1,0 +1,43 @@
+.sm-history-siderbar {
+  height: calc(100% - 45px);
+}
+
+.sm-history-container {
+  position: fixed;
+  display: none;
+  top: 100px;
+  right: 10px;
+  width: 340px;
+  height: 100%;
+  padding: 20px;
+  border: 1px solid #d9d9d9;
+  background: #f9f9f9;
+}
+
+.sm-history-close-btn {
+  text-decoration: none;
+  font-size: 12px;
+  color: #555;
+}
+
+.ql-history {
+  font-size: 11px;
+}
+
+.sm-editor-scroller {
+  box-sizing: border-box;
+  height: calc(100% - 46px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-top: 2px;
+  padding-bottom: 20px;
+  width: 100%;
+}
+
+.sm-toolbar-wrapper.active {
+  border-bottom: 1px solid #F7F7F7;
+}
+
+.sm-editor .new-doc-directory {
+  background-color: #f7f7f7;
+}

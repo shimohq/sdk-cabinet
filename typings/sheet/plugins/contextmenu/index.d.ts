@@ -1,6 +1,7 @@
 import Editor from '../../editor'
-export interface SheetContextmenuOptions {
-  editor: Editor
+import { BasePluginOptions } from '../../editor'
+
+export interface SheetContextmenuOptions extends BasePluginOptions {
 }
 interface SheetContextmenuRenderOptions {
   container?: Element

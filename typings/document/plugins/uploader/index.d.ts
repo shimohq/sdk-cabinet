@@ -1,4 +1,4 @@
-import Editor from '../../editor'
+import { BasePluginOptions } from '../../editor'
 import { EventEmitter } from 'eventemitter3'
 
 declare enum Events {
@@ -10,9 +10,8 @@ declare enum Events {
   FAIL = 'FAIL'
 }
 
-export interface UploaderOptions {
-  editor: Editor
-  container: Element | string
+export interface UploaderOptions extends BasePluginOptions {
+  container: HTMLElement | string
   type?: string
   url?: string
   tokenUrl?: string

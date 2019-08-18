@@ -1,14 +1,14 @@
-import Editor from '../../editor'
+import { BasePluginOptions } from '../../editor'
 
-export interface HistoryOptions {
-  editor: Editor
+export interface HistoryOptions extends BasePluginOptions {
   guid: string
   height: string
   service?: {
     fetch?: string;
     revert?: string;
     user?: string;
-  }
+  },
+  container?: HTMLElement
 }
 
 export default class History {

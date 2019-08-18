@@ -1,0 +1,7 @@
+.toolBar--tool .sm-external-actions-history {
+  display: table-cell;
+  font-size: 11px;
+  height: 28px;
+  padding: 0 5px;
+  vertical-align: middle;
+}

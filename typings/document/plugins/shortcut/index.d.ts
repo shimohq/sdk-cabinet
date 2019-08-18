@@ -1,10 +1,9 @@
-import Editor from '../../editor'
+import { BasePluginOptions } from '../../editor'
 import DemoScreen from '../demoScreen'
 import History from '../history'
 import TableOfContent from '../tableOfContent'
 
-export interface ShortcutOptions {
-  editor: Editor
+export interface ShortcutOptions extends BasePluginOptions {
   plugins: {
     demoScreen?: DemoScreen,
     revision?: any,
