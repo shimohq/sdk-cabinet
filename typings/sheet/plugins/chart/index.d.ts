@@ -1,8 +1,8 @@
 import Editor from '../../editor'
+import { BasePluginOptions } from '../../editor'
 
-export interface ChartOptions {
-  editor: Editor
-}
+export interface ChartOptions extends BasePluginOptions {}
+
 export declare const chartPluginName = 'Chart'
 export default class Chart {
   constructor (options: ChartOptions);

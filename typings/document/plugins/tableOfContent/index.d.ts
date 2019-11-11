@@ -1,4 +1,4 @@
-import Editor from '../../editor'
+import { BasePluginOptions } from '../../editor'
 import { EventEmitter } from 'eventemitter3'
 
 declare enum Events {
@@ -7,8 +7,8 @@ declare enum Events {
   UPDATE = 'UPDATE'
 }
 
-export interface TableOfContentOptions {
-  editor: Editor
+export interface TableOfContentOptions extends BasePluginOptions {
+  container?: HTMLElement
 }
 
 export default class TableOfContent extends EventEmitter<Events> {

@@ -1,10 +1,10 @@
 import { CommentModel } from './comment_model'
 import { CommentList } from './comment_list'
 import Editor from '../../editor'
+import { BasePluginOptions } from '../../editor'
 import { IUser } from '../../../global'
 
-export interface CommentOptions {
-  editor: Editor
+export interface CommentOptions extends BasePluginOptions {
   guid: string
   container: HTMLElement
   currentUser: IUser

@@ -1,4 +1,4 @@
-import Editor from '../../editor'
+import { BasePluginOptions } from '../../editor'
 import { EventEmitter } from 'eventemitter3'
 
 declare enum Events {
@@ -6,9 +6,7 @@ declare enum Events {
   HIDE = 'HIDE'
 }
 
-export interface DemoScreenOptions {
-  editor: Editor
-}
+export interface DemoScreenOptions extends BasePluginOptions{}
 
 export default class DemoScreen extends EventEmitter<Events> {
   constructor (options: DemoScreenOptions);

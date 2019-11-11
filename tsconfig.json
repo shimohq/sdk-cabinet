@@ -4,12 +4,16 @@
       "dom",
       "es6"
     ],
-    "outDir": "bundle",
+    "outDir": "dist",
     "module": "commonjs",
     "target": "es5",
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "vendor"
   ]
 }
