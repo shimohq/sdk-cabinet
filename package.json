@@ -9,7 +9,7 @@
     "lint": "standard && tslint --format stylish --project .",
     "clean": "del dist",
     "compile": "npm run clean && npx webpack",
-    "prepublish": "NODE_ENV=production npm run clean && npm run build"
+    "prepack": "NODE_ENV=production npm run clean && npm run build"
   },
   "author": "fghpdf",
   "license": "ISC",
