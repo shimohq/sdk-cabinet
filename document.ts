@@ -152,7 +152,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   public initGallery (editor: ShimoSDK.Document.Editor): void {
     const options: ShimoSDK.Document.GalleryOptions = {
       editor,
-      downloadServer: this.editorOptions.downloadConfig.origin
+      downloadServer: this.editorOptions?.downloadConfig?.origin || ''
     }
     const gallery: ShimoSDK.Document.Gallery = new this.sdkDocument.plugins.Gallery(options)
     gallery.render()
@@ -179,7 +179,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     const historyShowContainer = this.getDom('history-content')
     history.render(historyShowContainer)
 
-    const clickDom = this.getDom('ql-history', null, 'button')
+    const clickDom = this.getDom('ql-history', undefined, 'button')
     clickDom.setAttribute('type', 'button')
     clickDom.classList.add('ql-history')
 
@@ -194,14 +194,14 @@ export default class ShimoDocumentCabinet extends CabinetBase {
       toolbarContainer.appendChild(clickDom)
     }
 
-    const historyContainer: HTMLElement = document.querySelector('.history-container')
+    const historyContainer: HTMLElement = document.querySelector('.history-container') as HTMLElement
 
     clickDom.addEventListener('click', () => {
       historyContainer.style.display = 'block'
       editor.comment.hide()
     })
 
-    document.querySelector('.history-close-btn').addEventListener('click', () => {
+    document.querySelector('.history-close-btn')!.addEventListener('click', () => {
       historyContainer.style.display = 'none'
       editor.comment.show()
     })
@@ -277,9 +277,9 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     const options: ShimoSDK.Document.UploaderOptions = {
       editor,
       container: '#sm-editor',
-      url: this.editorOptions.uploadConfig.origin,
-      accessToken: this.editorOptions.uploadConfig.token,
-      type: this.editorOptions.uploadConfig.server
+      url: this.editorOptions?.uploadConfig?.origin,
+      accessToken: this.editorOptions?.uploadConfig?.token,
+      type: this.editorOptions?.uploadConfig?.server
     }
 
     const uploader: ShimoSDK.Document.Uploader = new this.sdkDocument.plugins.Uploader(options)
@@ -291,10 +291,10 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     const options: ShimoSDK.Document.ShortcutOptions = {
       editor,
       plugins: {
-        demoScreen: null,
+        demoScreen: undefined,
         revision: null,
-        history: null,
-        tableOfContent: null
+        history: undefined,
+        tableOfContent: undefined
       }
     }
 

@@ -18,6 +18,6 @@ export default class CabinetBase {
   }
 
   protected insertAfter (referenceNode: HTMLElement, newNode: HTMLElement) {
-    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling)
+    referenceNode.parentNode!.insertBefore(newNode, referenceNode.nextSibling)
   }
 }
