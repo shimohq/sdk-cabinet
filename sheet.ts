@@ -73,7 +73,9 @@ export default class ShimoSheetCabinet extends CabinetBase {
 
   public destroy (): void {
     this.editor.destroy()
-    this.collaboration.destroy()
+    if (this.collaboration) {
+      this.collaboration.destroy()
+    }
   }
 
   public initEditor (options: ShimoSDK.Sheet.EditorOptions): ShimoSDK.Sheet.Editor {

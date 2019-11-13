@@ -136,7 +136,9 @@ export default class ShimoDocumentCabinet extends CabinetBase {
 
   public destroy (): void {
     this.editor.destroy()
-    this.collaboration.destroy()
+    if (this.collaboration) {
+      this.collaboration.destroy()
+    }
   }
 
   public initEditor (): ShimoSDK.Document.Editor {
