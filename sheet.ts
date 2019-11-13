@@ -39,7 +39,7 @@ export default class ShimoSheetCabinet extends CabinetBase {
   }
 
   public render () {
-    const editor = this.initEditor(this.editorOptions)
+    const editor = this.editor = this.initEditor(this.editorOptions)
     editor.render({
       content: this.file.content,
       container: this.getDom('editor')
