@@ -76,7 +76,7 @@ yarn add shimo-sdk-cabinet
       entrypoint: '<SHIMO_ENTRYPOINT_URL>',
       token: '<SHIMO_ACCESS_TOKEN>',
 
-      container: document.GetElementById('editor')
+      container: document.getElementById('editor')
     })
     cabinet.render().then(() => {
       console.log('Editor is ready!')
