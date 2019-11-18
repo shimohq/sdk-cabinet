@@ -1,5 +1,5 @@
 import isObject from 'lodash.isobject'
-import forIn from 'lodash.forIn'
+import forIn from 'lodash.forin'
 
 import assert from '../util/assert'
 
