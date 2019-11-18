@@ -1,8 +1,6 @@
 import isObject from 'lodash.isobject'
 import forIn from 'lodash.forin'
 
-import assert from '../util/assert'
-
 export default class CabinetBase {
   protected element: HTMLElement
   protected availablePlugins: string[]
