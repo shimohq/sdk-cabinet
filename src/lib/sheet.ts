@@ -101,7 +101,7 @@ class ShimoSheetCabinet extends CabinetBase {
     let container = this.getElement(options.container)
     if (container === null) {
       container = this.getElement(undefined, 'div', { id: 'sm-toolbar' })
-      this.element.prepend(container)
+      this.element.insertBefore(container, this.element.firstChild)
     }
     container.classList.add('sm-toolbar')
     toolbar.render({ container })
@@ -194,7 +194,8 @@ class ShimoSheetCabinet extends CabinetBase {
         const toolbar = document.querySelector('.sm-toolbar')
         if (toolbar) {
           const groups = toolbar.querySelectorAll('.toolBar--content .toolBar--group')
-          groups[groups.length - 2].prepend(externalActions)
+          const elm = groups[groups.length - 2]
+          elm.insertBefore(externalActions, elm.firstChild)
         }
       }, 50)
     }
