@@ -43,7 +43,11 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     this.sdkCommon = options.sdkCommon
     this.sdkDocument = options.sdkDocument
     this.user = options.user
-    this.editorOptions = options.editorOptions
+    this.editorOptions = Object.assign({}, options.editorOptions, {
+      editable: options.file.permissions?.editable,
+      readable: options.file.permissions?.readable,
+      commentable: options.file.permissions?.commentable
+    })
     this.file = options.file
     this.entrypoint = options.entrypoint
     this.token = options.token
