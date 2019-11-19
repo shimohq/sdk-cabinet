@@ -289,17 +289,18 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   }
 
   private getToolbarOptions () {
-    let container: HTMLElement
+    let container: HTMLElement | null
 
     if (this.plugins.Toolbar === false) {
       return false
     }
 
-    container = this.getElement(
-      (this.plugins.Toolbar as ShimoSDK.Document.ToolbarOptions).container!,
-      'div',
-      { id: 'sm-toolbar' }
-    )
+    container = this.getElement((this.plugins.Toolbar as ShimoSDK.Document.ToolbarOptions).container)
+
+    if (!container) {
+      container = this.getElement(undefined, 'div', { id: 'sm-toolbar' })
+      this.element.insertBefore(container, this.element.firstChild)
+    }
 
     container.classList.add('sm-toolbar')
 
