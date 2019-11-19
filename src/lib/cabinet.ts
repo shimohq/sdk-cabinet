@@ -181,6 +181,11 @@ class ShimoCabinet {
         return plugins
       }, new Set()) as Set<string>
     _availablePlugins.add('Toolbar')
+
+    if (this.getSDK('common').Collaboration) {
+      _availablePlugins.add('Collaboration')
+    }
+
     const availablePlugins = Array.from(_availablePlugins)
 
     const shimoDocumentCabinet = new ShimoDocumentCabinet({
