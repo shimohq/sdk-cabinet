@@ -235,8 +235,6 @@ ReactDOM.render(<Editor />, document.getElementById('app'))
 
 由于石墨 JS SDK 已经使用 Webpack 预处理过，因此需要在 Webpack 用 `script-loader` 处理石墨 JS SDK 文件：
 
-单独引入 JS SDK 文件时：
-
 ```js
 {
   test: /shimo-sdk-cabinet\/vendor\/shimo-jssdk\/.+\.js/i,
@@ -244,14 +242,7 @@ ReactDOM.render(<Editor />, document.getElementById('app'))
 }
 ```
 
-直接引入套件完整包时：
-
-```js
-{
-  test: /shimo-sdk-cabinet\/dist\/.+\.js/i,
-  use: 'script-loader'
-}
-```
+**直接引入套件完整包 (如 `shimo-sdk-cabinet/dist/document.min.js`) 时不需要使用 `script-loader` 处理。**
 
 #### 文件大小
 
