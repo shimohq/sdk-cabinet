@@ -295,7 +295,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   private getToolbarOptions () {
     let container: HTMLElement | null
 
-    if (this.plugins.Toolbar === false) {
+    if (!this.plugins.Toolbar) {
       return false
     }
 
