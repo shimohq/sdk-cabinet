@@ -145,20 +145,22 @@ class Editor extends React.Component {
 
       container: elm,
 
-      plugins: {
-        // 仅启用工具栏插件
-        Toolbar: true,
+      editorOptions: {
+        plugins: {
+          // 仅启用工具栏插件
+          Toolbar: true,
 
-        // 停用其他插件
-        Collaborator: false,
-        Collaboration: false,
-        Comment: false,
-        DemoScreen: false,
-        Gallery: false,
-        History: false,
-        Shortcut: false,
-        TableOfContent: false,
-        Uploader: false
+          // 停用其他插件
+          Collaborator: false,
+          Collaboration: false,
+          Comment: false,
+          DemoScreen: false,
+          Gallery: false,
+          History: false,
+          Shortcut: false,
+          TableOfContent: false,
+          Uploader: false
+        }
       }
     })
     cabinet.render().then(() => {
