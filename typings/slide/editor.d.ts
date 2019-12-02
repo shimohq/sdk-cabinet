@@ -35,6 +35,7 @@ export class Editor {
   getLocale (): string
   destroy (): void
   collaborators: ShimoSDK.Common.Collaboration
+  layouts: ShimoSDK.Slide.Layouts
 }
 
 export interface BasePluginOptions {
