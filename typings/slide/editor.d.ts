@@ -35,7 +35,8 @@ export class Editor {
   getLocale (): string
   destroy (): void
   collaborators: ShimoSDK.Common.Collaboration
-  layouts: ShimoSDK.Slide.Layouts
+  // 需要在 destroy 时同步处理的资源
+  __GC__: { [key: string]: any }
 }
 
 export interface BasePluginOptions {
