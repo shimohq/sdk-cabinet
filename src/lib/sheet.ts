@@ -122,7 +122,7 @@ class ShimoSheetCabinet extends CabinetBase {
       currentUser: this.user,
       guid: this.file.guid,
       usePollingInsteadOfSocket: {
-        interval: 1000
+        interval: 10000
       },
       queryCommentOptions: {
         url: `${this.entrypoint}/files/${this.file.guid}/comments?accessToken=${this.token}&_legacy=1`
