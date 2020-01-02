@@ -16,19 +16,35 @@ export default class CabinetBase {
    * @param element If element is a HTMLElement, return it directly; if it's a string, get it from DOM
    * @param tag If element is omitted, and tag presented, create an new HTMLElement for the specified tag, then return it
    * @param attrs Element's attributes
+   * @param parentElement created element will be attached to it
    */
-  protected getElement (element: HTMLElement | string | undefined, tag: string, attrs?: {
-    classList?: string[]
-    [key: string]: any
-  }): HTMLElement
-  protected getElement (element: HTMLElement | string | undefined, tag?: string, attrs?: {
-    classList?: string[]
-    [key: string]: any
-  }): HTMLElement | null
-  protected getElement (element: HTMLElement | string | undefined, tag?: string, attrs?: {
-    classList?: string[]
-    [key: string]: any
-  }) {
+  protected getElement (
+    element: HTMLElement | string | undefined,
+    tag: string,
+    attrs?: {
+      classList?: string[]
+      [key: string]: any
+    },
+    parentElmenent?: HTMLElement
+  ): HTMLElement
+  protected getElement (
+    element: HTMLElement | string | undefined,
+    tag?: string,
+    attrs?: {
+      classList?: string[]
+      [key: string]: any
+    },
+    parentElmenent?: HTMLElement
+  ): HTMLElement | null
+  protected getElement (
+    element: HTMLElement | string | undefined,
+    tag?: string,
+    attrs?: {
+      classList?: string[]
+      [key: string]: any
+    },
+    parentElement?: HTMLElement
+  ) {
     if (typeof element === 'string') {
       const elm = document.querySelector(element)
       if (elm instanceof HTMLElement) {
@@ -36,7 +52,9 @@ export default class CabinetBase {
       }
     }
 
-    if (element instanceof HTMLElement === false) {
+    const elmentExists = element instanceof HTMLElement
+
+    if (!elmentExists) {
       if (!tag) {
         return null
       }
@@ -52,6 +70,10 @@ export default class CabinetBase {
         }
         elm.setAttribute(key, value)
       })
+    }
+
+    if (!elmentExists && parentElement instanceof HTMLElement) {
+      parentElement.appendChild(element as HTMLElement)
     }
 
     return element as HTMLElement

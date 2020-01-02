@@ -110,12 +110,23 @@ class ShimoSheetCabinet extends CabinetBase {
   public initContextMenu (editor: ShimoSDK.Sheet.Editor): void {
     const options: ShimoSDK.Sheet.SheetContextmenuOptions = assign({}, this.plugins.ContextMenu, { editor })
     const contextMenu: ShimoSDK.Sheet.SheetContextmenu = new this.sdkSheet.plugins.ContextMenu(options)
-    const container = this.getElement(options.container, 'div', { id: 'sm-contextmenu', classList: ['sm-contextmenu'] })
+    const container = this.getElement(
+      options.container,
+      'div',
+      { id: 'sm-contextmenu',
+      classList: ['sm-contextmenu'] },
+      this.element
+    )
     contextMenu.render({ container })
   }
 
   public initComment (editor: ShimoSDK.Sheet.Editor): void {
-    const container = this.getElement(undefined, 'div', { id: 'sm-comment', classList: ['sm-comment'] })
+    const container = this.getElement(
+      undefined,
+      'div',
+      { id: 'sm-comment', classList: ['sm-comment'] },
+      this.element
+    )
     const options: ShimoSDK.Sheet.CommentOptions = {
       editor,
       container,
@@ -141,8 +152,7 @@ class ShimoSheetCabinet extends CabinetBase {
         return this.sdkSheet.plugins.CommentLocaleResources[locale]
       }
     }
-    const comment: ShimoSDK.Sheet.Comment = new this.sdkSheet.plugins.Comment(options)
-    comment.init()
+    new this.sdkSheet.plugins.Comment(options)
   }
 
   public initHistorySidebarSkeleton (editor: ShimoSDK.Sheet.Editor): void {
@@ -203,8 +213,12 @@ class ShimoSheetCabinet extends CabinetBase {
   }
 
   public initFormulaSidebar (editor: ShimoSDK.Sheet.Editor): void {
-    const container = this.getElement(undefined, 'div', { id: 'sm-formula-sidebar' })
-    this.element.appendChild(container)
+    const container = this.getElement(
+      undefined,
+      'div',
+      { id: 'sm-formula-sidebar' },
+      this.element
+    )
 
     const formulaSidebar: ShimoSDK.Sheet.FormulaSidebar =
       new this.sdkSheet.plugins.FormulaSidebar({ editor, container })
