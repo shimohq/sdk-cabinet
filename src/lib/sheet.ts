@@ -113,8 +113,10 @@ class ShimoSheetCabinet extends CabinetBase {
     const container = this.getElement(
       options.container,
       'div',
-      { id: 'sm-contextmenu',
-      classList: ['sm-contextmenu'] },
+      {
+        id: 'sm-contextmenu',
+        classList: ['sm-contextmenu']
+      },
       this.element
     )
     contextMenu.render({ container })
@@ -152,6 +154,7 @@ class ShimoSheetCabinet extends CabinetBase {
         return this.sdkSheet.plugins.CommentLocaleResources[locale]
       }
     }
+    /* tslint:disable-next-line:no-unused-expression */
     new this.sdkSheet.plugins.Comment(options)
   }
 

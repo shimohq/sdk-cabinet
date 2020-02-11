@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm run compile",
-    "lint": "standard && tslint --format stylish --project .",
+    "lint": "eslint --ext .js . && tslint --format stylish --project .",
     "clean": "del dist",
     "compile": "npm run clean && npx webpack",
     "prepack": "NODE_ENV=production npm run clean && npm run build"
@@ -22,13 +22,18 @@
     "css-loader": "^3.2.0",
     "cssnano": "^4.1.10",
     "del-cli": "^2.0.0",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
     "eventemitter3": "^3.1.0",
     "postcss-load-config": "^2.1.0",
     "postcss-loader": "^3.0.0",
     "postcss-plugin": "^1.0.0",
     "postcss-preset-env": "^6.7.0",
     "script-loader": "^0.7.2",
-    "standard": "^14.3.0",
     "style-loader": "^1.0.0",
     "ts-loader": "^6.0.4",
     "tslint": "^5.20.1",
@@ -44,12 +49,6 @@
     "object-assign": "^4.1.1",
     "promise-polyfill": "^8.1.3",
     "unfetch": "^4.1.0"
-  },
-  "standard": {
-    "ignore": [
-      "vendors",
-      "dist"
-    ]
   },
   "files": [
     "typings",
