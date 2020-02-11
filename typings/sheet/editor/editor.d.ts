@@ -86,4 +86,8 @@ export default class Editor extends EventEmitter<AllEvents> {
   getLocale (): string
   undo (): Promise<void>
   redo (): Promise<void>
+  updateOptions: (options: {
+    commentable: boolean,
+    editable: boolean
+  }) => void
 }

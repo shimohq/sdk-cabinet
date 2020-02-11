@@ -5,3 +5,8 @@
   padding: 0 5px;
   vertical-align: middle;
 }
+
+.sm-toolbar div.sm-save-status {
+  float: right;
+  line-height: 26px;
+}

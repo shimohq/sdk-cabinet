@@ -3,6 +3,18 @@ import assign from 'object-assign'
 import CabinetBase from './base'
 import './sheet.css'
 
+const STATUS = {
+  OFFLINE: 'offline',
+  OFFLINE_SAVING: 'offlineSaving',
+  OFFLINE_SAVED: 'offlineSaved',
+  OFFLINE_SAVE_FAILED: 'offlineSaveFailed',
+  ONLINE: 'online',
+  ONLINE_SAVING: 'onlineSaving',
+  ONLINE_SAVED: 'onlineSaved',
+  ONLINE_SAVE_FAILED: 'onlineSaveFailed',
+  SERVER_CHANGE_APPLIED: 'serverChangeApplied'
+}
+
 class ShimoSheetCabinet extends CabinetBase {
   public editor: ShimoSDK.Sheet.Editor
   private sdkSheet: any
@@ -14,6 +26,7 @@ class ShimoSheetCabinet extends CabinetBase {
   private editorOptions: ShimoSDK.Sheet.EditorOptions
   private collaboration: ShimoSDK.Common.Collaboration
   private pluginsReady: boolean
+  private afterPluginReady: (() => void)[]
   protected plugins: ShimoSDK.Sheet.Plugins
 
   constructor (options: {
@@ -48,6 +61,7 @@ class ShimoSheetCabinet extends CabinetBase {
 
     this.availablePlugins = options.availablePlugins
     this.plugins = this.preparePlugins(options.editorOptions.plugins) as ShimoSDK.Sheet.Plugins
+    this.afterPluginReady = []
   }
 
   public render () {
@@ -62,6 +76,9 @@ class ShimoSheetCabinet extends CabinetBase {
 
     this.initPlugins(editor)
     this.pluginsReady = true
+    for (const cb of this.afterPluginReady) {
+      cb.call(this)
+    }
 
     const referenceNode = document.getElementById('toolbar') && document.getElementById('contextmenu')
     if (referenceNode) {
@@ -98,12 +115,14 @@ class ShimoSheetCabinet extends CabinetBase {
   public initToolbar (editor: ShimoSDK.Sheet.Editor): void {
     const options: ShimoSDK.Sheet.ToolbarOptions = assign({}, this.plugins.Toolbar, { editor })
     const toolbar: ShimoSDK.Sheet.Toolbar = new this.sdkSheet.plugins.Toolbar(options)
+
     let container = this.getElement(options.container)
     if (container === null) {
       container = this.getElement(undefined, 'div', { id: 'sm-toolbar' })
       this.element.insertBefore(container, this.element.firstChild)
     }
     container.classList.add('sm-toolbar')
+
     toolbar.render({ container })
   }
 
@@ -266,11 +285,126 @@ class ShimoSheetCabinet extends CabinetBase {
     }
     const collaboration: ShimoSDK.Common.Collaboration = new this.sdkCommon.Collaboration(collaborationOptions)
     collaboration.start()
-    if (typeof collaborationOptions.onSaveStatusChange === 'function') {
-      collaboration.on('saveStatusChange' as ShimoSDK.Common.CollaborationEvents, collaborationOptions.onSaveStatusChange)
-    }
 
     this.collaboration = collaboration
+
+    this.afterPluginReady.push(() => {
+      if (!this.collaboration) {
+        return
+      }
+
+      let statusChangeHandler = collaborationOptions.onSaveStatusChange
+      if (typeof statusChangeHandler !== 'function') {
+        statusChangeHandler = getStatusChangeHandler.call(this)
+      }
+
+      this.collaboration.on(
+        'saveStatusChange' as ShimoSDK.Common.CollaborationEvents,
+        statusChangeHandler!
+      )
+
+      function getStatusChangeHandler () {
+        const toolbarElm = document.querySelector('.sm-toolbar .tabStrip')
+        // tslint:disable-next-line:no-empty
+        let changeText = (text: string) => {}
+        if (toolbarElm) {
+          const statusElm = this.getElement(undefined, 'div', {
+            classList: ['menu', 'tabMenu', 'sm-save-status']
+          })
+          statusElm.textContent = getText(STATUS.ONLINE as ShimoSDK.Common.CollaborationStatus)
+          toolbarElm.appendChild(statusElm)
+
+          changeText = (text: string) => {
+            statusElm.textContent = text
+          }
+        }
+
+        const showAlert = this.sdkSheet.sheets.utils.showAlert
+        const confirm = this.sdkSheet.sheets.utils.confirm
+
+        return (status: ShimoSDK.Common.CollaborationStatus) => {
+          const text = getText(status)
+          switch (status) {
+            case STATUS.ONLINE_SAVING:
+              changeText(text)
+              break
+
+            case STATUS.ONLINE_SAVED:
+              this.updateEditorOptions()
+              changeText(text)
+              break
+
+            case STATUS.OFFLINE:
+              this.updateEditorOptions({ commentable: false, editable: false })
+              changeText(text)
+
+              if (
+                this.collaboration.haveUnsavedChange() ||
+                !this.editor.isCsQueueEmpty()
+              ) {
+                confirm({
+                  title: '表格已离线',
+                  description:
+                    '您的网络已经断开，无法继续编写！</br>为了防止数据丢失，请在刷新前手动保存最近的修改。',
+                  buttons: [
+                    {
+                      type: 'button',
+                      buttonLabel: '确定',
+                      customClass: 'btn-ok',
+                      closeAfterClick: true
+                    }
+                  ]
+                })
+              } else {
+                showAlert({
+                  title: '您的网络已经断开，无法继续编写！',
+                  type: 'error'
+                })
+              }
+
+              break
+
+            case STATUS.ONLINE:
+              changeText(text)
+              this.updateEditorOptions()
+              break
+
+            // 在线保存失败
+            case STATUS.ONLINE_SAVE_FAILED:
+              // 禁用编辑器
+              this.updateEditorOptions({ commentable: false, editable: false })
+              changeText(text)
+              showAlert({ title: '保存失败，请刷新当前页面！', type: 'error' })
+              break
+
+            // 离线保存失败
+            case STATUS.OFFLINE_SAVE_FAILED:
+              changeText(text)
+              // 禁用编辑器
+              this.updateEditorOptions({ commentable: false, editable: false })
+              break
+          }
+        }
+
+        function getText (status: ShimoSDK.Common.CollaborationStatus) {
+          switch (status) {
+            case STATUS.ONLINE_SAVING:
+              return '保存中...'
+            case STATUS.ONLINE_SAVED:
+              return '保存成功'
+            case STATUS.OFFLINE:
+              return '已离线'
+            case STATUS.ONLINE:
+              return '自动保存已启用'
+            case STATUS.ONLINE_SAVE_FAILED:
+              return '保存失败'
+            case STATUS.OFFLINE_SAVE_FAILED:
+              return '离线保存失败'
+          }
+          return ''
+        }
+      }
+    })
   }
 
   public initLock (editor: ShimoSDK.Sheet.Editor): void {
@@ -295,6 +429,18 @@ class ShimoSheetCabinet extends CabinetBase {
     }
 
     const _ = new this.sdkSheet.plugins.Lock(options)
+  }
+
+  private updateEditorOptions (options?: {
+    commentable: boolean,
+    editable: boolean
+  }) {
+    if (this.editor) {
+      this.editor.updateOptions(assign({
+        commentable: this.editorOptions.commentable,
+        editable: this.editorOptions.editable
+      }, options))
+    }
   }
 }
 
