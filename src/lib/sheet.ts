@@ -17,6 +17,14 @@ const STATUS = {
 
 class ShimoSheetCabinet extends CabinetBase {
   public editor: ShimoSDK.Sheet.Editor
+  public plugins: {
+    collaboration?: ShimoSDK.Common.Collaboration
+    comment?: ShimoSDK.Sheet.Comment
+    formulaSidebar?: ShimoSDK.Sheet.FormulaSidebar
+    history?: ShimoSDK.Sheet.HistorySidebarSkeleton
+    print?: ShimoSDK.Sheet.Print
+  }
+
   private sdkSheet: any
   private sdkCommon: any
   private user: ShimoSDK.User
@@ -27,7 +35,7 @@ class ShimoSheetCabinet extends CabinetBase {
   private collaboration: ShimoSDK.Common.Collaboration
   private pluginsReady: boolean
   private afterPluginReady: (() => void)[]
-  protected plugins: ShimoSDK.Sheet.Plugins
+  protected pluginOptions: ShimoSDK.Sheet.Plugins
 
   constructor (options: {
     element: HTMLElement
@@ -46,6 +54,7 @@ class ShimoSheetCabinet extends CabinetBase {
     this.user = options.user
     this.entrypoint = options.entrypoint
     this.token = options.token
+    this.plugins = {}
 
     const file = this.file = options.file
     this.editorOptions = Object.assign({
@@ -60,7 +69,7 @@ class ShimoSheetCabinet extends CabinetBase {
     }, options.editorOptions)
 
     this.availablePlugins = options.availablePlugins
-    this.plugins = this.preparePlugins(options.editorOptions.plugins) as ShimoSDK.Sheet.Plugins
+    this.pluginOptions = this.preparePlugins(options.editorOptions.plugins) as ShimoSDK.Sheet.Plugins
     this.afterPluginReady = []
   }
 
@@ -113,7 +122,7 @@ class ShimoSheetCabinet extends CabinetBase {
   }
 
   public initToolbar (editor: ShimoSDK.Sheet.Editor): void {
-    const options: ShimoSDK.Sheet.ToolbarOptions = assign({}, this.plugins.Toolbar, { editor })
+    const options: ShimoSDK.Sheet.ToolbarOptions = assign({}, this.pluginOptions.Toolbar, { editor })
     const toolbar: ShimoSDK.Sheet.Toolbar = new this.sdkSheet.plugins.Toolbar(options)
 
     let container = this.getElement(options.container)
@@ -127,7 +136,7 @@ class ShimoSheetCabinet extends CabinetBase {
   }
 
   public initContextMenu (editor: ShimoSDK.Sheet.Editor): void {
-    const options: ShimoSDK.Sheet.SheetContextmenuOptions = assign({}, this.plugins.ContextMenu, { editor })
+    const options: ShimoSDK.Sheet.SheetContextmenuOptions = assign({}, this.pluginOptions.ContextMenu, { editor })
     const contextMenu: ShimoSDK.Sheet.SheetContextmenu = new this.sdkSheet.plugins.ContextMenu(options)
     const container = this.getElement(
       options.container,
@@ -173,12 +182,12 @@ class ShimoSheetCabinet extends CabinetBase {
         return this.sdkSheet.plugins.CommentLocaleResources[locale]
       }
     }
-    /* tslint:disable-next-line:no-unused-expression */
-    new this.sdkSheet.plugins.Comment(options)
+
+    this.plugins.comment = new this.sdkSheet.plugins.Comment(options)
   }
 
   public initHistorySidebarSkeleton (editor: ShimoSDK.Sheet.Editor): void {
-    const sidebarOptions: { [key: string]: any } = assign({}, this.plugins.HistorySidebarSkeleton)
+    const sidebarOptions: { [key: string]: any } = assign({}, this.pluginOptions.HistorySidebarSkeleton)
     const container = this.getElement(sidebarOptions.container, 'div', {
       classList: ['sm-history-sidebar-container']
     })
@@ -201,6 +210,7 @@ class ShimoSheetCabinet extends CabinetBase {
     }
     const historySidebarSkeleton: ShimoSDK.Sheet.HistorySidebarSkeleton =
       new this.sdkSheet.plugins.HistorySidebarSkeleton(options)
+    this.plugins.history = historySidebarSkeleton
 
     const externalActions = this.getElement('#sm-external-actions', 'span', {
       id: 'sm-external-actions',
@@ -244,6 +254,7 @@ class ShimoSheetCabinet extends CabinetBase {
 
     const formulaSidebar: ShimoSDK.Sheet.FormulaSidebar =
       new this.sdkSheet.plugins.FormulaSidebar({ editor, container })
+    this.plugins.formulaSidebar = formulaSidebar
 
     const btn = this.getElement(undefined, 'span', { id: 'sm-formula-btn', classList: ['sm-formula-btn'] })
     btn.addEventListener('click', () => formulaSidebar.show())
@@ -422,13 +433,17 @@ class ShimoSheetCabinet extends CabinetBase {
       }
     }
 
-    const plugins = this.plugins
+    const plugins = this.pluginOptions
     const lockOptions = plugins.Lock! as ShimoSDK.Sheet.LockOptions
     if (typeof lockOptions.fetchCollaborators === 'function') {
       options.fetchCollaborators = lockOptions.fetchCollaborators
     }
 
     const _ = new this.sdkSheet.plugins.Lock(options)
+  }
+
+  public initPrint (editor: ShimoSDK.Sheet.Editor): void {
+    this.plugins.print = new this.sdkSheet.plugins.Print({ editor })
   }
 
   private updateEditorOptions (options?: {

@@ -29,10 +29,10 @@ class ShimoCabinet {
   private user: ShimoSDK.User
   private file: ShimoSDK.File
   private editorOptions: ShimoSDK.Document.EditorOptions | ShimoSDK.Sheet.EditorOptions
-  private shimoSheetCabinet?: ShimoSheetCabinet
-  private shimoDocumentCabinet?: ShimoDocumentCabinet
-  private shimoSlideCabinet?: ShimoSlideCabinet
-  private shimoDocumentProCabinet?: ShimoDocumentProCabinet
+  private sheet?: ShimoSheetCabinet
+  private document?: ShimoDocumentCabinet
+  private slide?: ShimoSlideCabinet
+  private documentPro?: ShimoDocumentProCabinet
 
   constructor (options: {
     /**
@@ -145,17 +145,17 @@ class ShimoCabinet {
       availablePlugins
     })
 
-    this.shimoSheetCabinet = shimoSheetCabinet
+    this.sheet = shimoSheetCabinet
 
     return shimoSheetCabinet.render()
   }
 
   private destroySheet () {
-    if (!this.shimoSheetCabinet) {
+    if (!this.sheet) {
       throw new Error('shimoSheetCabinet is not rendered')
     }
-    this.shimoSheetCabinet.destroy()
-    this.shimoSheetCabinet = undefined
+    this.sheet.destroy()
+    this.sheet = undefined
   }
 
   private renderDocument () {
@@ -202,20 +202,20 @@ class ShimoCabinet {
       availablePlugins
     })
 
-    this.shimoDocumentCabinet = shimoDocumentCabinet
+    this.document = shimoDocumentCabinet
     return shimoDocumentCabinet.render()
   }
 
   private destroyDocument () {
-    if (!this.shimoDocumentCabinet) {
+    if (!this.document) {
       throw new Error('shimoDocumentCabinet is not rendered')
     }
-    this.shimoDocumentCabinet.destroy()
-    this.shimoDocumentCabinet = undefined
+    this.document.destroy()
+    this.document = undefined
   }
 
   private renderSlide () {
-    const cabinet = this.shimoSlideCabinet = new ShimoSlideCabinet({
+    const cabinet = this.slide = new ShimoSlideCabinet({
       element: this.container,
       sdkSlide: this.getSDK('slide'),
       sdkCommon: this.getSDK('common'),
@@ -229,11 +229,11 @@ class ShimoCabinet {
   }
 
   private destroySlide () {
-    if (!this.shimoSlideCabinet) {
+    if (!this.slide) {
       throw new Error('ShideSlideCabinet is not rendered')
     }
-    this.shimoSlideCabinet.destroy()
-    this.shimoSlideCabinet = undefined
+    this.slide.destroy()
+    this.slide = undefined
   }
 
   private renderDocumentPro () {
@@ -243,7 +243,7 @@ class ShimoCabinet {
       user: this.user,
       file: this.file
     })
-    this.shimoDocumentProCabinet = cabinet
+    this.documentPro = cabinet
     return cabinet.render()
   }
 

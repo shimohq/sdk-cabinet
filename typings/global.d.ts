@@ -12,6 +12,7 @@ import * as IHistorySidebarSkeleton from './sheet/plugins/historySidebarSkeleton
 import * as IShortcut from './sheet/plugins/shortcut'
 import * as IToolbar from './sheet/plugins/toolbar'
 import * as ILock from './sheet/plugins/lock'
+import * as ISheetPrint from './sheet/plugins/print'
 
 import * as IDocEditor from './document/editor'
 import * as IDocGallery from './document/plugins/gallery'
@@ -96,6 +97,7 @@ declare global {
       export type ToolbarOptions = IToolbar.ToolbarOptions
       export type Lock = ILock.default
       export type LockOptions = ILock.LockOptions
+      export type Print = ISheetPrint.default
     }
 
     namespace Document {

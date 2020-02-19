@@ -2,13 +2,15 @@ import isObject from 'lodash.isobject'
 import forIn from 'lodash.forin'
 
 export default class CabinetBase {
+  public plugins: { [key: string]: any }
   protected element: HTMLElement
   protected availablePlugins: string[]
-  protected plugins: ShimoSDK.Document.Plugins | ShimoSDK.Sheet.Plugins
+  protected pluginOptions: ShimoSDK.Document.Plugins | ShimoSDK.Sheet.Plugins
 
   constructor (element: HTMLElement) {
     this.element = element
     this.availablePlugins = []
+    this.plugins = {}
   }
 
   /**
@@ -117,7 +119,7 @@ export default class CabinetBase {
    * 初始化所有启用的插件
    */
   protected initPlugins (editor: ShimoSDK.Sheet.Editor | ShimoSDK.Document.Editor) {
-    for (const name of Object.keys(this.plugins)) {
+    for (const name of Object.keys(this.pluginOptions)) {
       const method = `init${name}`
       if (typeof this[method] === 'function') {
         this[method](editor)

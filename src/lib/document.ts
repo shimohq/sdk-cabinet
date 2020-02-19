@@ -18,6 +18,18 @@ const historyContainerTemplate = `
 
 export default class ShimoDocumentCabinet extends CabinetBase {
   public editor: ShimoSDK.Document.Editor
+  public plugins: {
+    demoScreen?: ShimoSDK.Document.DemoScreen
+    collaboration?: ShimoSDK.Common.Collaboration
+    collaborators?: ShimoSDK.Document.Collaborator
+    comment?: ShimoSDK.Document.Comment
+    gallery?: ShimoSDK.Document.Gallery
+    history?: ShimoSDK.Document.History
+    tableOfContent?: ShimoSDK.Document.TableOfContent
+    uploader?: ShimoSDK.Document.Uploader
+    shortcut?: ShimoSDK.Document.Shortcut
+  }
+
   private sdkCommon: any
   private sdkDocument: any
   private user: ShimoSDK.User
@@ -26,7 +38,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   private entrypoint: string
   private token: string
   private collaboration: ShimoSDK.Common.Collaboration
-  protected plugins: ShimoSDK.Document.Plugins
+  protected pluginOptions: ShimoSDK.Document.Plugins
 
   constructor (options: {
     element: HTMLElement
@@ -48,11 +60,12 @@ export default class ShimoDocumentCabinet extends CabinetBase {
       readable: options.file.permissions?.readable,
       commentable: options.file.permissions?.commentable
     })
+    this.plugins = {}
     this.file = options.file
     this.entrypoint = options.entrypoint
     this.token = options.token
     this.availablePlugins = options.availablePlugins
-    this.plugins = this.preparePlugins(options.editorOptions.plugins)
+    this.pluginOptions = this.preparePlugins(options.editorOptions.plugins)
   }
 
   public render () {
@@ -106,7 +119,9 @@ export default class ShimoDocumentCabinet extends CabinetBase {
 
   public destroy (): void {
     this.editor.destroy()
-    this.collaboration.destroy()
+    if (this.plugins.collaboration) {
+      this.plugins.collaboration.destroy()
+    }
   }
 
   public initEditor (): ShimoSDK.Document.Editor {
@@ -124,6 +139,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
       editor
     }
     const gallery: ShimoSDK.Document.Gallery = new this.sdkDocument.plugins.Gallery(options)
+    this.plugins.gallery = gallery
     gallery.render()
   }
 
@@ -147,8 +163,9 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     }
 
     const history: ShimoSDK.Document.History = new this.sdkDocument.plugins.History(options)
+    this.plugins.history = history
 
-    let historyContainer = this.getElement(get(this.plugins, 'History.container'))
+    let historyContainer = this.getElement(get(this.pluginOptions, 'History.container'))
     if (!historyContainer) {
       this.element.insertAdjacentHTML('afterend', historyContainerTemplate)
       historyContainer = document.querySelector('.sm-history-container') as HTMLElement
@@ -186,9 +203,11 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   public initTableOfContent (editor: ShimoSDK.Document.Editor): void {
     const options: ShimoSDK.Document.TableOfContentOptions = assign({
       editor
-    }, this.plugins.TableOfContent)
+    }, this.pluginOptions.TableOfContent)
 
     const tableOfContent: ShimoSDK.Document.TableOfContent = new this.sdkDocument.plugins.TableOfContent(options)
+    this.plugins.tableOfContent = tableOfContent
+
     if (options.container instanceof HTMLElement) {
       options.container.classList.add('table-of-content')
     }
@@ -209,6 +228,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
       user: this.user
     }
     const collaborators: ShimoSDK.Document.Collaborator = new this.sdkDocument.plugins.Collaborator(collaboratorOptions)
+    this.plugins.collaborators = collaborators
 
     const collaborationOptions: ShimoSDK.Common.CollaborationOptions = assign(
       {
@@ -217,7 +237,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
         selectUrl: `${this.entrypoint}/files/${this.file.guid}/select?accessToken=${this.token}`,
         offlineEditable: false
       },
-      this.plugins.Collaboration,
+      this.pluginOptions.Collaboration,
       {
         editor,
         type: 'richdoc',
@@ -227,6 +247,8 @@ export default class ShimoDocumentCabinet extends CabinetBase {
       }
     )
     const collaboration: ShimoSDK.Common.Collaboration = new this.sdkCommon.Collaboration(collaborationOptions)
+    this.plugins.collaboration = collaboration
+
     if (typeof collaborationOptions.onSaveStatusChange === 'function') {
       collaboration.on('saveStatusChange' as ShimoSDK.Common.CollaborationEvents, collaborationOptions.onSaveStatusChange)
     }
@@ -252,7 +274,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     }
 
     const comment: ShimoSDK.Document.Comment = new this.sdkDocument.plugins.Comment(options)
-    editor.comment = comment
+    this.plugins.comment = editor.comment = comment
     comment.render()
     comment.show()
   }
@@ -261,11 +283,12 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     const options: ShimoSDK.Document.DemoScreenOptions = { editor }
 
     const demoScreen: ShimoSDK.Document.DemoScreen = new this.sdkDocument.plugins.DemoScreen(options)
+    this.plugins.demoScreen = demoScreen
     return demoScreen
   }
 
   public initUploader (editor: ShimoSDK.Document.Editor): ShimoSDK.Document.Uploader {
-    const uploadConfig: { [key: string]: any } = assign({}, this.plugins.Uploader)
+    const uploadConfig: { [key: string]: any } = assign({}, this.pluginOptions.Uploader)
 
     const options: ShimoSDK.Document.UploaderOptions = {
       editor,
@@ -275,7 +298,9 @@ export default class ShimoDocumentCabinet extends CabinetBase {
       type: uploadConfig.server
     }
 
-    return new this.sdkDocument.plugins.Uploader(options)
+    const uploader = new this.sdkDocument.plugins.Uploader(options)
+    this.plugins.uploader = uploader
+    return uploader
   }
 
   public initShortcut (editor: ShimoSDK.Document.Editor): void {
@@ -290,17 +315,18 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     }
 
     const shortcut: ShimoSDK.Document.Shortcut = new this.sdkDocument.plugins.Shortcut(options)
+    this.plugins.shortcut = shortcut
     shortcut.render()
   }
 
   private getToolbarOptions () {
     let container: HTMLElement | null
 
-    if (!this.plugins.Toolbar) {
+    if (!this.pluginOptions.Toolbar) {
       return false
     }
 
-    container = this.getElement((this.plugins.Toolbar as ShimoSDK.Document.ToolbarOptions).container)
+    container = this.getElement((this.pluginOptions.Toolbar as ShimoSDK.Document.ToolbarOptions).container)
 
     if (!container) {
       container = this.getElement(undefined, 'div', { id: 'sm-toolbar' })
