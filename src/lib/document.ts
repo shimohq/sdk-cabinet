@@ -173,6 +173,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
 
     historyButton.addEventListener('click', () => {
       historyContainer!.style.display = 'block'
+      history.show()
       editor.comment.hide()
     })
 
