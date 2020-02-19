@@ -147,11 +147,17 @@ class Editor extends React.Component {
 
       editorOptions: {
         plugins: {
-          // 仅启用工具栏插件
+          // 以默认选项启用工具栏插件
           Toolbar: true,
 
+          // 自定义插件选项
+          Collaborator: {
+            // 自定义选项
+            // avatarTrack: true
+            // ...
+          },
+
           // 停用其他插件
-          Collaborator: false,
           Collaboration: false,
           Comment: false,
           DemoScreen: false,
@@ -165,6 +171,9 @@ class Editor extends React.Component {
     })
     cabinet.render().then(() => {
       console.log('Editor is ready!')
+
+      // 访问插件，如启动文档演示模式
+      cabinet.document.plugins.demoScreen.show()
     })
   }
 
