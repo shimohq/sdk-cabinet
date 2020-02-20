@@ -240,6 +240,45 @@ ReactDOM.render(<Editor />, document.getElementById('app'))
 
 幻灯片暂没有定制化配置。
 
+#### 移动端适配
+
+ - 移动端目前尽量保证浏览效果，编辑功能和桌面端有差距
+ - 目前仅支持
+    - 文档
+    - 表格
+
+##### 文档
+
+```js
+const cabinet = new ShimoCabinet({ ... })
+const editor = await cabinet.render()
+editor.container.classList.add('in-mobile')
+```
+
+##### 表格
+
+需要单独实现工作表切换，其他的不需要做适配。
+工作表切换菜单的实现：
+
+```js
+const cabinet = new ShimoCabinet({ ... })
+const editor = await cabinet.render()
+
+const events = cabinet.getSDK('sheet').Editor.events
+
+// 监听 editor 的变化，更新 menu
+editor.on(events.SHEET_TAB_LIST_UPDATED, () => {
+  // 获取所有 sheets
+  const sheets = editor.spread.getSheets()
+
+  // 获取当前被激活的 sheet
+  const activeSheet = editor.spread.getActiveSheet()
+})
+
+// 点击菜单项之后，切换激活的工作表
+editor.spread.setActiveSheet(sheetId)
+```
+
 ### 补充说明
 
 #### Webpack 配置
