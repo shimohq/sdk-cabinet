@@ -1,6 +1,6 @@
 {
   "name": "shimo-sdk-cabinet",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "shimo sdk cabinet, which to simplify the development process",
   "main": "src/index.ts",
   "scripts": {
