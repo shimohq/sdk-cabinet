@@ -69,6 +69,7 @@ export interface Plugins {
   Lock?: boolean | LockOptions
   Shortcut?: boolean | BasePluginOptions
   Toolbar?: boolean | BasePluginOptions
+  Print?: boolean | BasePluginOptions
 }
 
 /**

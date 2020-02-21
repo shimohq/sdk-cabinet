@@ -21,7 +21,7 @@ class ShimoSheetCabinet extends CabinetBase {
     collaboration?: ShimoSDK.Common.Collaboration
     comment?: ShimoSDK.Sheet.Comment
     formulaSidebar?: ShimoSDK.Sheet.FormulaSidebar
-    history?: ShimoSDK.Sheet.HistorySidebarSkeleton
+    historySidebarSkeleton?: ShimoSDK.Sheet.HistorySidebarSkeleton
     print?: ShimoSDK.Sheet.Print
   }
 
@@ -122,6 +122,10 @@ class ShimoSheetCabinet extends CabinetBase {
   }
 
   public initToolbar (editor: ShimoSDK.Sheet.Editor): void {
+    if (this.pluginOptions.Toolbar === false) {
+      return
+    }
+
     const options: ShimoSDK.Sheet.ToolbarOptions = assign({}, this.pluginOptions.Toolbar, { editor })
     const toolbar: ShimoSDK.Sheet.Toolbar = new this.sdkSheet.plugins.Toolbar(options)
 
@@ -136,6 +140,10 @@ class ShimoSheetCabinet extends CabinetBase {
   }
 
   public initContextMenu (editor: ShimoSDK.Sheet.Editor): void {
+    if (this.pluginOptions.ContextMenu === false) {
+      return
+    }
+
     const options: ShimoSDK.Sheet.SheetContextmenuOptions = assign({}, this.pluginOptions.ContextMenu, { editor })
     const contextMenu: ShimoSDK.Sheet.SheetContextmenu = new this.sdkSheet.plugins.ContextMenu(options)
     const container = this.getElement(
@@ -151,13 +159,17 @@ class ShimoSheetCabinet extends CabinetBase {
   }
 
   public initComment (editor: ShimoSDK.Sheet.Editor): void {
+    if (this.pluginOptions.Comment === false) {
+      return
+    }
+
     const container = this.getElement(
       undefined,
       'div',
       { id: 'sm-comment', classList: ['sm-comment'] },
       this.element
     )
-    const options: ShimoSDK.Sheet.CommentOptions = {
+    const options: ShimoSDK.Sheet.CommentOptions = assign({
       editor,
       container,
       currentUser: this.user,
@@ -181,12 +193,16 @@ class ShimoSheetCabinet extends CabinetBase {
       fetchLocaleSync: (locale) => {
         return this.sdkSheet.plugins.CommentLocaleResources[locale]
       }
-    }
+    }, this.pluginOptions.Comment)
 
     this.plugins.comment = new this.sdkSheet.plugins.Comment(options)
   }
 
   public initHistorySidebarSkeleton (editor: ShimoSDK.Sheet.Editor): void {
+    if (this.pluginOptions.HistorySidebarSkeleton === false) {
+      return
+    }
+
     const sidebarOptions: { [key: string]: any } = assign({}, this.pluginOptions.HistorySidebarSkeleton)
     const container = this.getElement(sidebarOptions.container, 'div', {
       classList: ['sm-history-sidebar-container']
@@ -210,7 +226,7 @@ class ShimoSheetCabinet extends CabinetBase {
     }
     const historySidebarSkeleton: ShimoSDK.Sheet.HistorySidebarSkeleton =
       new this.sdkSheet.plugins.HistorySidebarSkeleton(options)
-    this.plugins.history = historySidebarSkeleton
+    this.plugins.historySidebarSkeleton = historySidebarSkeleton
 
     const externalActions = this.getElement('#sm-external-actions', 'span', {
       id: 'sm-external-actions',
@@ -245,6 +261,10 @@ class ShimoSheetCabinet extends CabinetBase {
   }
 
   public initFormulaSidebar (editor: ShimoSDK.Sheet.Editor): void {
+    if (this.pluginOptions.FormulaSidebar === false) {
+      return
+    }
+
     const container = this.getElement(
       undefined,
       'div',
@@ -253,7 +273,11 @@ class ShimoSheetCabinet extends CabinetBase {
     )
 
     const formulaSidebar: ShimoSDK.Sheet.FormulaSidebar =
-      new this.sdkSheet.plugins.FormulaSidebar({ editor, container })
+      new this.sdkSheet.plugins.FormulaSidebar(assign(
+        { container },
+        this.pluginOptions.FormulaSidebar,
+        { editor }
+      ))
     this.plugins.formulaSidebar = formulaSidebar
 
     const btn = this.getElement(undefined, 'span', { id: 'sm-formula-btn', classList: ['sm-formula-btn'] })
@@ -261,39 +285,87 @@ class ShimoSheetCabinet extends CabinetBase {
   }
 
   public initShortcut (editor: ShimoSDK.Sheet.Editor): void {
-    const options: ShimoSDK.Sheet.ShortcutOptions = { editor }
+    if (this.pluginOptions.Shortcut === false) {
+      return
+    }
+
+    const options: ShimoSDK.Sheet.ShortcutOptions = assign(
+      {},
+      this.pluginOptions.Shortcut,
+      { editor }
+    )
     const _ = new this.sdkSheet.plugins.Shortcut(options)
   }
 
   public initChart (editor: ShimoSDK.Sheet.Editor): void {
-    const options: ShimoSDK.Sheet.ChartOptions = { editor }
+    if (this.pluginOptions.Chart === false) {
+      return
+    }
+
+    const options: ShimoSDK.Sheet.ChartOptions = assign(
+      {},
+      this.pluginOptions.Shortcut,
+      { editor }
+    )
     const _ = new this.sdkSheet.plugins.Chart(options)
   }
 
   public initFill (editor: ShimoSDK.Sheet.Editor): void {
-    const options: ShimoSDK.Sheet.FillOptions = { editor }
+    if (this.pluginOptions.Fill === false) {
+      return
+    }
+
+    const options: ShimoSDK.Sheet.FillOptions = assign(
+      {},
+      this.pluginOptions.Fill,
+      { editor }
+    )
     const _ = new this.sdkSheet.plugins.Fill(options)
   }
 
   public initFilterViewport (editor: ShimoSDK.Sheet.Editor): void {
-    const options: ShimoSDK.Sheet.FilterViewportOptions = { editor }
+    if (this.pluginOptions.FilterViewport === false) {
+      return
+    }
+
+    const options: ShimoSDK.Sheet.FilterViewportOptions = assign(
+      {},
+      this.pluginOptions.FilterViewport,
+      { editor }
+    )
     const _ = new this.sdkSheet.plugins.FilterViewport(options)
   }
 
   public initCollaboration (editor: ShimoSDK.Sheet.Editor): void {
-    const collaboratorsOptions: ShimoSDK.Sheet.CollaboratorsOptions = { editor }
-    const collaborators = new this.sdkSheet.plugins.Collaborators(collaboratorsOptions)
+    let collaborators: ShimoSDK.Sheet.Collaborators | undefined
 
-    const collaborationOptions: ShimoSDK.Common.CollaborationOptions = {
-      editor,
-      rev: this.file.head,
-      guid: this.file.guid,
-      pullUrl: `${this.entrypoint}/files/${this.file.guid}/pull?accessToken=${this.token}`,
-      composeUrl: `${this.entrypoint}/files/${this.file.guid}/compose?accessToken=${this.token}`,
-      selectUrl: `${this.entrypoint}/files/${this.file.guid}/select?accessToken=${this.token}`,
-      collaborators,
-      offlineEditable: false
+    if (this.pluginOptions.Collaborator !== false) {
+      collaborators = new this.sdkSheet.plugins.Collaborators(assign(
+        {},
+        this.pluginOptions.Collaborator,
+        { editor }
+      ))
     }
+
+    if (this.pluginOptions.Collaboration === false) {
+      return
+    }
+
+    const collaborationOptions: ShimoSDK.Common.CollaborationOptions = assign(
+      {
+        pullUrl: `${this.entrypoint}/files/${this.file.guid}/pull?accessToken=${this.token}`,
+        composeUrl: `${this.entrypoint}/files/${this.file.guid}/compose?accessToken=${this.token}`,
+        selectUrl: `${this.entrypoint}/files/${this.file.guid}/select?accessToken=${this.token}`,
+        collaborators,
+        offlineEditable: false
+      },
+      this.pluginOptions.Collaboration,
+      {
+        editor,
+        rev: this.file.head,
+        guid: this.file.guid
+      }
+    )
     const collaboration: ShimoSDK.Common.Collaboration = new this.sdkCommon.Collaboration(collaborationOptions)
     collaboration.start()
 
@@ -419,19 +491,28 @@ class ShimoSheetCabinet extends CabinetBase {
   }
 
   public initLock (editor: ShimoSDK.Sheet.Editor): void {
-    const options: ShimoSDK.Sheet.LockOptions = {
-      editor,
-      currentUser: {
-        id: this.user.id
-      },
-      permission: {
-        read: this.file.permissions.readable,
-        edit: this.file.permissions.editable,
-        comment: this.file.permissions.commentable,
-        lock: this.file.permissions.editable,
-        manage: this.file.userId === this.user.id
-      }
+    if (this.pluginOptions.Lock === false) {
+      return
     }
+
+    const options: ShimoSDK.Sheet.LockOptions = assign(
+      {
+        permission: {
+          read: this.file.permissions.readable,
+          edit: this.file.permissions.editable,
+          comment: this.file.permissions.commentable,
+          lock: this.file.permissions.editable,
+          manage: this.file.userId === this.user.id
+        }
+      },
+      this.pluginOptions.Lock,
+      {
+        editor,
+        currentUser: {
+          id: this.user.id
+        }
+      }
+    )
 
     const plugins = this.pluginOptions
     const lockOptions = plugins.Lock! as ShimoSDK.Sheet.LockOptions
@@ -443,6 +524,10 @@ class ShimoSheetCabinet extends CabinetBase {
   }
 
   public initPrint (editor: ShimoSDK.Sheet.Editor): void {
+    if (this.pluginOptions.Print === false) {
+      return
+    }
+
     this.plugins.print = new this.sdkSheet.plugins.Print({ editor })
   }
 

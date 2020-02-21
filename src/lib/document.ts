@@ -135,26 +135,41 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   }
 
   public initGallery (editor: ShimoSDK.Document.Editor): void {
-    const options: ShimoSDK.Document.GalleryOptions = {
-      editor
+    if (this.pluginOptions.Gallery === false) {
+      return
     }
+
+    const options: ShimoSDK.Document.GalleryOptions = assign(
+      {},
+      this.pluginOptions.Gallery,
+      {
+        editor
+      }
+    )
     const gallery: ShimoSDK.Document.Gallery = new this.sdkDocument.plugins.Gallery(options)
     this.plugins.gallery = gallery
     gallery.render()
   }
 
-  public initHistory (editor: ShimoSDK.Document.Editor, height: string): void {
-    const options: ShimoSDK.Document.HistoryOptions = {
-      editor,
-      guid: this.file.guid,
-      height,
-      service: {
-        fetch: `${this.entrypoint}/files/${this.file.guid}/` +
-                  `histories?accessToken=${this.token}`,
-        revert: `${this.entrypoint}/files/${this.file.guid}/revert?accessToken=${this.token}`,
-        user: `${this.entrypoint}/users?accessToken=${this.token}`
-      }
+  public initHistory (editor: ShimoSDK.Document.Editor): void {
+    if (this.pluginOptions.History === false) {
+      return
     }
+
+    const options: ShimoSDK.Document.HistoryOptions = assign(
+      {},
+      this.pluginOptions.History,
+      {
+        editor,
+        guid: this.file.guid,
+        service: {
+          fetch: `${this.entrypoint}/files/${this.file.guid}/` +
+                    `histories?accessToken=${this.token}`,
+          revert: `${this.entrypoint}/files/${this.file.guid}/revert?accessToken=${this.token}`,
+          user: `${this.entrypoint}/users?accessToken=${this.token}`
+        }
+      }
+    )
 
     let rootContainer = document.querySelector('.sm-history-sidebar') as HTMLElement
     if (!rootContainer) {
@@ -201,9 +216,17 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   }
 
   public initTableOfContent (editor: ShimoSDK.Document.Editor): void {
-    const options: ShimoSDK.Document.TableOfContentOptions = assign({
-      editor
-    }, this.pluginOptions.TableOfContent)
+    if (this.pluginOptions.TableOfContent === false) {
+      return
+    }
+
+    const options: ShimoSDK.Document.TableOfContentOptions = assign(
+      {},
+      this.pluginOptions.TableOfContent,
+      {
+        editor
+      }
+    )
 
     const tableOfContent: ShimoSDK.Document.TableOfContent = new this.sdkDocument.plugins.TableOfContent(options)
     this.plugins.tableOfContent = tableOfContent
@@ -272,18 +295,27 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   }
 
   public initComment (editor: ShimoSDK.Document.Editor): void {
-    const options: ShimoSDK.Document.CommentOptions = {
-      editor,
-      user: this.user,
-      service: {
-        fetch: `${this.entrypoint}/files/${this.file.guid}/comments?accessToken=${this.token}`,
-        create: `${this.entrypoint}/files/${this.file.guid}/comments?accessToken=${this.token}`,
-        delete: `${this.entrypoint}/files/${this.file.guid}/comments/{commentGuid}?accessToken=${this.token}`,
-        close: `${this.entrypoint}/files/${this.file.guid}/` +
-          `comments/close/{selectionGuid}?accessToken=${this.token}`
-      },
-      mentionable: false
+    if (this.pluginOptions === false) {
+      return
     }
+
+    const options: ShimoSDK.Document.CommentOptions = assign(
+      {
+        service: {
+          fetch: `${this.entrypoint}/files/${this.file.guid}/comments?accessToken=${this.token}`,
+          create: `${this.entrypoint}/files/${this.file.guid}/comments?accessToken=${this.token}`,
+          delete: `${this.entrypoint}/files/${this.file.guid}/comments/{commentGuid}?accessToken=${this.token}`,
+          close: `${this.entrypoint}/files/${this.file.guid}/` +
+            `comments/close/{selectionGuid}?accessToken=${this.token}`
+        },
+        mentionable: false
+      },
+      this.pluginOptions.Comment,
+      {
+        editor,
+        user: this.user,
+      }
+    )
 
     const comment: ShimoSDK.Document.Comment = new this.sdkDocument.plugins.Comment(options)
     this.plugins.comment = editor.comment = comment
@@ -291,15 +323,22 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     comment.show()
   }
 
-  public initDemoScreen (editor: ShimoSDK.Document.Editor): ShimoSDK.Document.DemoScreen {
+  public initDemoScreen (editor: ShimoSDK.Document.Editor) {
+    if (this.pluginOptions.DemoScreen === false) {
+      return
+    }
+
     const options: ShimoSDK.Document.DemoScreenOptions = { editor }
 
     const demoScreen: ShimoSDK.Document.DemoScreen = new this.sdkDocument.plugins.DemoScreen(options)
     this.plugins.demoScreen = demoScreen
-    return demoScreen
   }
 
-  public initUploader (editor: ShimoSDK.Document.Editor): ShimoSDK.Document.Uploader {
+  public initUploader (editor: ShimoSDK.Document.Editor) {
+    if (this.pluginOptions.Uploader === false) {
+      return
+    }
+
     const uploadConfig: { [key: string]: any } = assign({}, this.pluginOptions.Uploader)
 
     const options: ShimoSDK.Document.UploaderOptions = {
@@ -312,10 +351,13 @@ export default class ShimoDocumentCabinet extends CabinetBase {
 
     const uploader = new this.sdkDocument.plugins.Uploader(options)
     this.plugins.uploader = uploader
-    return uploader
   }
 
   public initShortcut (editor: ShimoSDK.Document.Editor): void {
+    if (this.pluginOptions.Shortcut === false) {
+      return
+    }
+
     const options: ShimoSDK.Document.ShortcutOptions = {
       editor,
       plugins: {

@@ -2,7 +2,7 @@ import { BasePluginOptions } from '../../editor'
 
 export interface HistoryOptions extends BasePluginOptions {
   guid: string
-  height: string
+  height?: string
   service?: {
     fetch?: string;
     revert?: string;
