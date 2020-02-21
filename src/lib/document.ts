@@ -21,7 +21,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   public plugins: {
     demoScreen?: ShimoSDK.Document.DemoScreen
     collaboration?: ShimoSDK.Common.Collaboration
-    collaborators?: ShimoSDK.Document.Collaborator
+    collaborator?: ShimoSDK.Document.Collaborator
     comment?: ShimoSDK.Document.Comment
     gallery?: ShimoSDK.Document.Gallery
     history?: ShimoSDK.Document.History
@@ -215,20 +215,30 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   }
 
   public initCollaboration (editor: ShimoSDK.Document.Editor): void {
-    const collaboratorOptions: ShimoSDK.Document.CollaboratorsOptions = {
-      service: {
-        user: `${this.entrypoint}/users?accessToken=${this.token}`
-      },
-      avatarTrack: true,
-      cursorTrack: true,
+    let collaborators: ShimoSDK.Document.Collaborator | undefined
 
-      ...get(this.editorOptions, 'plugins.Collaborators', {}),
-
-      editor,
-      user: this.user
+    if (this.pluginOptions.Collaborator !== false) {
+      const collaboratorOptions: ShimoSDK.Document.CollaboratorOptions = assign(
+        {
+          service: {
+            user: `${this.entrypoint}/users?accessToken=${this.token}`
+          },
+          avatarTrack: false,
+          cursorTrack: false
+        },
+        this.pluginOptions.Collaborator,
+        {
+          editor,
+          user: this.user
+        }
+      )
+      collaborators = new this.sdkDocument.plugins.Collaborator(collaboratorOptions)
+      this.plugins.collaborator = collaborators
     }
-    const collaborators: ShimoSDK.Document.Collaborator = new this.sdkDocument.plugins.Collaborator(collaboratorOptions)
-    this.plugins.collaborators = collaborators
+
+    if (this.pluginOptions.Collaboration === false) {
+      return
+    }
 
     const collaborationOptions: ShimoSDK.Common.CollaborationOptions = assign(
       {
@@ -254,7 +264,9 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     }
 
     collaboration.start()
-    collaborators.render(collaboration)
+    if (collaborators) {
+      collaborators.render(collaboration)
+    }
 
     this.collaboration = collaboration
   }

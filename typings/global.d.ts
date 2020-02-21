@@ -112,7 +112,7 @@ declare global {
       export type TableOfContentOptions = IDocTableOfContent.TableOfContentOptions
       export type ToolbarOptions = IDocToolbar.ToolbarOptions
       export type Collaborator = IDocCollaborator.default
-      export type CollaboratorsOptions = IDocCollaborator.CollaboratorOptions
+      export type CollaboratorOptions = IDocCollaborator.CollaboratorOptions
       export type Comment = IDocComment.default
       export type CommentOptions = IDocComment.CommentOptions
       export type DemoScreen = IDocDemoScreen.default
