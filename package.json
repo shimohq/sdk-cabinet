@@ -55,7 +55,8 @@
     "typings",
     "src",
     "dist",
-    "vendor"
+    "vendor/**/*.js",
+    "vendor/**/*.css"
   ],
   "husky": {
     "hooks": {
