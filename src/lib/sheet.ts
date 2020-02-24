@@ -19,6 +19,7 @@ class ShimoSheetCabinet extends CabinetBase {
   public editor: ShimoSDK.Sheet.Editor
   public plugins: {
     collaboration?: ShimoSDK.Common.Collaboration
+    collaborators?: ShimoSDK.Sheet.Collaborators
     comment?: ShimoSDK.Sheet.Comment
     formulaSidebar?: ShimoSDK.Sheet.FormulaSidebar
     historySidebarSkeleton?: ShimoSDK.Sheet.HistorySidebarSkeleton
@@ -337,26 +338,22 @@ class ShimoSheetCabinet extends CabinetBase {
   }
 
   public initCollaboration (editor: ShimoSDK.Sheet.Editor): void {
-    let collaborators: ShimoSDK.Sheet.Collaborators | undefined
-
-    if (this.pluginOptions.Collaborator !== false) {
-      collaborators = new this.sdkSheet.plugins.Collaborators(assign(
-        {},
-        this.pluginOptions.Collaborator,
-        { editor }
-      ))
-    }
-
     if (this.pluginOptions.Collaboration === false) {
       return
     }
+
+    editor.collaborators = this.plugins.collaborators = new this.sdkSheet.plugins.Collaborators(assign(
+      {},
+      this.pluginOptions.Collaborators,
+      { editor }
+    ))
 
     const collaborationOptions: ShimoSDK.Common.CollaborationOptions = assign(
       {
         pullUrl: `${this.entrypoint}/files/${this.file.guid}/pull?accessToken=${this.token}`,
         composeUrl: `${this.entrypoint}/files/${this.file.guid}/compose?accessToken=${this.token}`,
         selectUrl: `${this.entrypoint}/files/${this.file.guid}/select?accessToken=${this.token}`,
-        collaborators,
+        collaborators: this.plugins.collaborators,
         offlineEditable: false
       },
       this.pluginOptions.Collaboration,

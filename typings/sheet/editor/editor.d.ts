@@ -59,7 +59,7 @@ export interface BasePluginOptions {
 export interface Plugins {
   Chart?: boolean | BasePluginOptions
   Collaboration?: boolean | CollaborationOptions
-  Collaborator?: boolean | BasePluginOptions
+  Collaborators?: boolean | BasePluginOptions
   Comment?: boolean | CommentOptions
   ContextMenu?: boolean | BasePluginOptions
   Fill?: boolean | BasePluginOptions
@@ -91,4 +91,5 @@ export default class Editor extends EventEmitter<AllEvents> {
     commentable: boolean,
     editable: boolean
   }) => void
+  collaborators?: ShimoSDK.Sheet.Collaborators
 }
