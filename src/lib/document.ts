@@ -171,12 +171,6 @@ export default class ShimoDocumentCabinet extends CabinetBase {
       }
     )
 
-    let rootContainer = document.querySelector('.sm-history-sidebar') as HTMLElement
-    if (!rootContainer) {
-      this.element.insertAdjacentHTML('afterend', historyContainerTemplate)
-      rootContainer = document.querySelector('.sm-history-sidebar') as HTMLElement
-    }
-
     const history: ShimoSDK.Document.History = new this.sdkDocument.plugins.History(options)
     this.plugins.history = history
 
