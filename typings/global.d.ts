@@ -76,6 +76,7 @@ declare global {
       export type CollaboratorsOptions = ICollaborators.CollaboratorsOptions
       export type Editor = ISheetEditor.default
       export type EditorOptions = ISheetEditor.EditorOptions
+      export type EditorRenderOptions = ISheetEditor.EditorRenderOptions
       export type Chart = IChart.default
       export type ChartOptions = IChart.ChartOptions
       export type Comment = IComment.default

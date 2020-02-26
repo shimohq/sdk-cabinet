@@ -43,6 +43,9 @@ export interface EditorRenderOptions {
   content: string
   container: HTMLElement
   activeSheetId?: string
+  spreadOptions?: {
+    allowScrollByPixel?: boolean
+  }
 }
 
 export interface BasePluginOptions {

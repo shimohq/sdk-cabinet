@@ -74,15 +74,23 @@ class ShimoSheetCabinet extends CabinetBase {
     this.afterPluginReady = []
   }
 
-  public render () {
+  public render (options?: ShimoSDK.Sheet.EditorRenderOptions) {
     const editorElm = this.getElement(undefined, 'div', { id: 'sm-editor', classList: ['sm-editor'] })
     this.element.appendChild(editorElm)
 
     const editor = this.editor = this.initEditor(this.editorOptions)
-    editor.render({
-      content: this.file.content,
-      container: editorElm
-    })
+    editor.render(assign(
+      {
+        spreadOptions: {
+          allowScrollByPixel: true
+        }
+      },
+      options,
+      {
+        content: this.file.content,
+        container: editorElm
+      }
+    ))
 
     this.initPlugins(editor)
     this.pluginsReady = true
