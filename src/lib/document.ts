@@ -105,7 +105,8 @@ export default class ShimoDocumentCabinet extends CabinetBase {
         localeConfig,
         modules: {
           toolbar: toolbarOptions
-        }
+        },
+        scrollingContainer: editorScroller
       }
     )
     editor.setContent(this.file.content)
