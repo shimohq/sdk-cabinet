@@ -120,8 +120,11 @@ export default class ShimoDocumentCabinet extends CabinetBase {
 
   public destroy (): void {
     this.editor.destroy()
-    if (this.plugins.collaboration) {
-      this.plugins.collaboration.destroy()
+    for (const k in this.plugins) {
+      if (this.plugins[k] && typeof this.plugins[k].destroy === 'function') {
+        console.log(`destroying ${k}`)
+        this.plugins[k].destroy()
+      }
     }
   }
 
