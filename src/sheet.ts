@@ -20,6 +20,7 @@ import '../vendor/shimo-jssdk/shimo.sdk.sheet.plugins.formulaSidebar.min.js'
 import '../vendor/shimo-jssdk/shimo.sdk.sheet.plugins.toolbar.min.js'
 import '../vendor/shimo-jssdk/shimo.sdk.sheet.plugins.conditionalFormat.min.js'
 import '../vendor/shimo-jssdk/shimo.sdk.sheet.plugins.historySidebar.min.js'
+import '../vendor/shimo-jssdk/shimo.sdk.sheet.plugins.pivotTable.min.js'
 
 ShimoCabinet.globals = {
   common: window.shimo.sdk.common,

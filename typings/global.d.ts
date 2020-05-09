@@ -13,6 +13,8 @@ import * as IShortcut from './sheet/plugins/shortcut'
 import * as IToolbar from './sheet/plugins/toolbar'
 import * as ILock from './sheet/plugins/lock'
 import * as ISheetPrint from './sheet/plugins/print'
+import IConditionalFormat from './sheet/plugins/conditionalFormat'
+import IPivotTable from './sheet/plugins/pivotTable'
 
 import * as IDocEditor from './document/editor'
 import * as IDocGallery from './document/plugins/gallery'
@@ -99,6 +101,8 @@ declare global {
       export type Lock = ILock.default
       export type LockOptions = ILock.LockOptions
       export type Print = ISheetPrint.default
+      export type ConditionalFormat = IConditionalFormat
+      export type PivotTable = IPivotTable
     }
 
     namespace Document {

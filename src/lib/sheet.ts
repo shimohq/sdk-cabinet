@@ -21,8 +21,10 @@ class ShimoSheetCabinet extends CabinetBase {
     collaboration?: ShimoSDK.Common.Collaboration
     collaborators?: ShimoSDK.Sheet.Collaborators
     comment?: ShimoSDK.Sheet.Comment
+    conditionalFormat?: ShimoSDK.Sheet.ConditionalFormat
     formulaSidebar?: ShimoSDK.Sheet.FormulaSidebar
     historySidebarSkeleton?: ShimoSDK.Sheet.HistorySidebarSkeleton
+    pivotTable?: ShimoSDK.Sheet.PivotTable
     print?: ShimoSDK.Sheet.Print
   }
 
@@ -534,6 +536,22 @@ class ShimoSheetCabinet extends CabinetBase {
     }
 
     this.plugins.print = new this.sdkSheet.plugins.Print({ editor })
+  }
+
+  public initConditionalFormat (editor: ShimoSDK.Sheet.Editor): void {
+    if (this.pluginOptions.ConditionalFormat === false) {
+      return
+    }
+
+    this.plugins.conditionalFormat = new this.sdkSheet.plugins.ConditionalFormat({ editor })
+  }
+
+  public initPivotTable (editor: ShimoSDK.Sheet.Editor): void {
+    if (this.pluginOptions.PivotTable === false) {
+      return
+    }
+
+    this.plugins.pivotTable = new this.sdkSheet.plugins.PivotTable({ editor })
   }
 
   private updateEditorOptions (options?: {

@@ -64,6 +64,7 @@ export interface Plugins {
   Collaboration?: boolean | CollaborationOptions
   Collaborators?: boolean | BasePluginOptions
   Comment?: boolean | CommentOptions
+  ConditionalFormat?: boolean | BasePluginOptions
   ContextMenu?: boolean | BasePluginOptions
   Fill?: boolean | BasePluginOptions
   FilterViewport?: boolean | BasePluginOptions
@@ -72,6 +73,7 @@ export interface Plugins {
   Lock?: boolean | LockOptions
   Shortcut?: boolean | BasePluginOptions
   Toolbar?: boolean | BasePluginOptions
+  PivotTable?: boolean | BasePluginOptions
   Print?: boolean | BasePluginOptions
 }
 
