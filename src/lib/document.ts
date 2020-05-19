@@ -311,7 +311,8 @@ export default class ShimoDocumentCabinet extends CabinetBase {
       this.pluginOptions.Comment,
       {
         editor,
-        user: this.user
+        user: this.user,
+        unreadEnable: false
       }
     )
 
