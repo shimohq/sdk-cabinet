@@ -26,6 +26,7 @@ import * as IDocComment from './document/plugins/comment'
 import * as IDocDemoScreen from './document/plugins/demoScreen'
 import * as IDocUploader from './document/plugins/uploader'
 import * as IDocShortcut from './document/plugins/shortcut'
+import IDocRevision, { RevisionOptions as IRevisionOptions } from './document/plugins/revision'
 
 import * as ISlideEditor from './slide/editor'
 import * as ISlideLayouts from './slide/plugins/layouts'
@@ -127,6 +128,8 @@ declare global {
       export type UploaderEvents = IDocUploader.Events
       export type Shortcut = IDocShortcut.default
       export type ShortcutOptions = IDocShortcut.ShortcutOptions
+      export type Revision = IDocRevision
+      export type RevisionOptions = IRevisionOptions
       export import Plugins = IDocEditor.Plugins
     }
 

@@ -8,6 +8,7 @@ import { CommentOptions } from '../plugins/comment'
 import { TableOfContentOptions } from '../plugins/tableOfContent'
 import { ToolbarOptions } from '../plugins/toolbar'
 import { UploaderOptions } from '../plugins/uploader'
+import { RevisionOptions } from '../plugins/revision'
 
 export interface EditorOptions extends BaseEditor.EditorOptions {
   // 用户 ID
@@ -59,6 +60,11 @@ export interface Plugins {
   DemoScreen?: boolean | BasePluginOptions
   Gallery?: boolean | GalleryOptions
   History?: boolean | BasePluginOptions
+
+  /**
+   * 是否启用版本插件，该插件不属于默认提供功能，默认为 false，需显式声明为 true 或传入配置才生效
+   */
+  Revision?: boolean | RevisionOptions
   Shortcut?: boolean | BasePluginOptions
   TableOfContent?: boolean | TableOfContentOptions
   Toolbar?: boolean | ToolbarOptions

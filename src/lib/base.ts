@@ -88,15 +88,15 @@ export default class CabinetBase {
   /**
    * 过滤未启用的插件
    */
-  protected preparePlugins (plugins?: ShimoSDK.Document.Plugins | ShimoSDK.Sheet.Plugins) {
+  protected preparePlugins<T> (plugins?: T, defaultOptions?: T): T {
     if (!isObject(plugins)) {
-      return this.availablePlugins.reduce((result, plugin) => {
+      plugins = this.availablePlugins.reduce((result, plugin) => {
         result[plugin] = true
         return result
-      }, {})
+      }, {}) as T
     }
 
-    const result: { [key: string]: any } = {}
+    const result = {} as T
 
     for (const plugin of this.availablePlugins) {
       const p = plugins[plugin]
@@ -108,7 +108,11 @@ export default class CabinetBase {
       if (typeof p === 'object' && p != null) {
         result[plugin] = p
       } else {
-        result[plugin] = {}
+        if (p == null && defaultOptions && defaultOptions[plugin] != null) {
+          result[plugin] = defaultOptions[plugin]
+        } else {
+          result[plugin] = {}
+        }
       }
     }
 

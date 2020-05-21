@@ -3,6 +3,7 @@ import assign from 'object-assign'
 
 import CabinetBase from './base'
 import './document.css'
+import { spawn } from 'child_process'
 
 const historyContainerTemplate = `
   <div class="sm-history-sidebar">
@@ -12,6 +13,18 @@ const historyContainerTemplate = `
         <a style="float: right;" class="sm-history-close-btn" href="javascript:void(0);">关闭</a>
       </div>
       <div class="sm-history-content" id="sm-history-content"></div>
+    </div>
+  </div>
+`
+
+const revisionContainerTemplate = `
+  <div class="sm-revision-container ql-sidebar-revision ql-sidebar" style="top: 46px; height: calc(100vh - 46px); display: none; z-index: 9;">
+    <div class="sm-sidebar">
+      <div class="sm-sidebar-title">
+        <div class="title-text">版本</div>
+        <div class="icon-close"><svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15.6 15.6"><path d="M9.2 7.8l6.4-6.4L14.2 0 7.8 6.4 1.4 0 0 1.4l6.4 6.4L0 14.2l1.4 1.4 6.4-6.4 6.4 6.4 1.4-1.4z" fill="#a5a5a5"></path></svg></div>
+      </div>
+      <div class="sm-sidebar-body"></div>
     </div>
   </div>
 `
@@ -28,6 +41,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     tableOfContent?: ShimoSDK.Document.TableOfContent
     uploader?: ShimoSDK.Document.Uploader
     shortcut?: ShimoSDK.Document.Shortcut
+    revision?: ShimoSDK.Document.Revision
   }
 
   private sdkCommon: any
@@ -38,6 +52,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   private entrypoint: string
   private token: string
   private collaboration: ShimoSDK.Common.Collaboration
+  private _commentShowCount: number
   protected pluginOptions: ShimoSDK.Document.Plugins
 
   constructor (options: {
@@ -65,7 +80,13 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     this.entrypoint = options.entrypoint
     this.token = options.token
     this.availablePlugins = options.availablePlugins
-    this.pluginOptions = this.preparePlugins(options.editorOptions.plugins)
+    this.pluginOptions = this.preparePlugins(
+      options.editorOptions.plugins,
+      {
+        Revision: false
+      }
+    )
+    this._commentShowCount = 0
   }
 
   public render () {
@@ -122,7 +143,6 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     this.editor.destroy()
     for (const k in this.plugins) {
       if (this.plugins[k] && typeof this.plugins[k].destroy === 'function') {
-        console.log(`destroying ${k}`)
         this.plugins[k].destroy()
       }
     }
@@ -191,8 +211,8 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     const historyButton = this.getElement('#ql-history', 'button', { id: 'ql-history', type: 'button' })
     historyButton.classList.add('ql-history')
 
-    if (!historyButton.textContent) {
-      historyButton.textContent = '历史'
+    if (!historyButton.textContent && !historyButton.dataset.label) {
+      historyButton.dataset.label = '历史'
     }
 
     const toolbarGroup = document.querySelector('.ql-toolbar-default')!.querySelectorAll('.ql-formats')
@@ -370,6 +390,115 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     const shortcut: ShimoSDK.Document.Shortcut = new this.sdkDocument.plugins.Shortcut(options)
     this.plugins.shortcut = shortcut
     shortcut.render()
+  }
+
+  public initRevision (editor: ShimoSDK.Document.Editor): void {
+    const pluginOptions = this.pluginOptions.Revision
+    if (
+      pluginOptions !== true &&
+      /* tslint:disable-next-line:strict-type-predicates */
+      (typeof pluginOptions !== 'object' || pluginOptions == null)
+    ) {
+      return
+    }
+
+    const options = assign(
+      {
+        service: {
+          length: `${this.entrypoint}/files/${this.file.guid}/revisions?accessToken=${this.token}`,
+          fetch: `${this.entrypoint}/files/${this.file.guid}/revisions?accessToken=${this.token}`,
+          fetchTitle: `${this.entrypoint}/files/${this.file.guid}/histories/{historyId}/title?accessToken=${this.token}`,
+          postRename: `${this.entrypoint}/files/${this.file.guid}/revisions/{id}?accessToken=${this.token}`,
+          revert: `${this.entrypoint}/files/${this.file.guid}/revert?accessToken=${this.token}`,
+          generate: `${this.entrypoint}/files/${this.file.guid}/revisions?accessToken=${this.token}`,
+          delete: `${this.entrypoint}/files/${this.file.guid}/revisions/{id}?accessToken=${this.token}`,
+          fetchContent: `${this.entrypoint}/files/${this.file.guid}/histories/{id}?accessToken=${this.token}`
+        }
+      },
+      pluginOptions,
+      {
+        editor
+      }
+    ) as ShimoSDK.Document.RevisionOptions
+
+    const revision: ShimoSDK.Document.Revision = new this.sdkDocument.plugins.Revision(options)
+    this.plugins.revision = revision
+
+    this.element.insertAdjacentHTML('afterend', revisionContainerTemplate)
+    const container = document.querySelector('.sm-revision-container') as HTMLElement
+    container.querySelector('.icon-close')!.addEventListener('click', () => {
+      container.style.display = 'none'
+      this.setCommentShowStatus(true)
+    })
+
+    if (!options.disableDefaultButtons) {
+      const parent = document.querySelector('.ql-toolbar-default')
+      if (parent) {
+        const buttonGroups = document.createElement('span')
+        buttonGroups.className = 'ql-formats ql-revision'
+        const html = `
+        <button type="button" class="ql-revision" data-label="版本"></button>
+        <span class="ql-dropdown-menu ql-revision-menu">
+          <button type="button" class="ql-create-revision" data-label="新建"></button>
+          <button type="button" class="ql-view-revision" data-label="查看"></button>
+        </span>
+      `
+        buttonGroups.insertAdjacentHTML('afterbegin', html)
+
+        parent.appendChild(buttonGroups)
+
+        const toggleButtons = show => {
+          const elm = buttonGroups.querySelector('.ql-revision')
+          if (elm) {
+            const method = show ? 'add' : 'remove'
+            elm.classList[method]('ql-expanded')
+            if (elm.nextElementSibling) {
+              elm.nextElementSibling.classList[method]('ql-expanded')
+            }
+          }
+        }
+
+        buttonGroups.querySelector('button.ql-revision')!.addEventListener('click', function () {
+          toggleButtons(!(this as HTMLElement).classList.contains('ql-expanded'))
+        })
+
+        const showRev = document.querySelector('.ql-view-revision') as HTMLElement
+        showRev.addEventListener('click', () => {
+          const renderContainer = container.querySelector('.sm-sidebar-body') as HTMLElement
+          if (renderContainer.innerHTML === '') {
+            revision.render(renderContainer)
+          }
+          container.style.display = 'block'
+          this.setCommentShowStatus(false)
+          toggleButtons(false)
+        })
+
+        const saveRev = document.querySelector('.ql-create-revision') as HTMLElement
+        saveRev.addEventListener('click', () => {
+          revision.save('版本保存成功')
+          toggleButtons(false)
+        })
+      }
+    }
+
+    revision.render()
+  }
+
+  private setCommentShowStatus (show: boolean) {
+    if (!this.plugins.comment) {
+      return
+    }
+
+    this._commentShowCount += show ? -1 : 1
+    if (this._commentShowCount < 0) {
+      this._commentShowCount = 0
+    }
+
+    if (this._commentShowCount > 0) {
+      this.plugins.comment.hide()
+    } else {
+      this.plugins.comment.show()
+    }
   }
 
   private getToolbarOptions () {
