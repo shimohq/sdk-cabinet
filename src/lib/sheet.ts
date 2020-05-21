@@ -72,7 +72,7 @@ class ShimoSheetCabinet extends CabinetBase {
     }, options.editorOptions)
 
     this.availablePlugins = options.availablePlugins
-    this.pluginOptions = this.preparePlugins(options.editorOptions.plugins) as ShimoSDK.Sheet.Plugins
+    this.pluginOptions = this.preparePlugins(options.editorOptions.plugins)
     this.afterPluginReady = []
   }
 
