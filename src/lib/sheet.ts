@@ -125,7 +125,11 @@ class ShimoSheetCabinet extends CabinetBase {
 
   public destroy (): void {
     this.editor.destroy()
-    this.collaboration.destroy()
+    for (const k in this.plugins) {
+      if (this.plugins[k] && typeof this.plugins[k].destroy === 'function') {
+        this.plugins[k].destroy()
+      }
+    }
   }
 
   public initEditor (options: ShimoSDK.Sheet.EditorOptions): ShimoSDK.Sheet.Editor {
@@ -352,7 +356,7 @@ class ShimoSheetCabinet extends CabinetBase {
       return
     }
 
-    editor.collaborators = this.plugins.collaborators = new this.sdkSheet.plugins.Collaborators(assign(
+    this.plugins.collaborators = editor.collaborators = this.plugins.collaborators = new this.sdkSheet.plugins.Collaborators(assign(
       {},
       this.pluginOptions.Collaborators,
       { editor }
@@ -376,7 +380,7 @@ class ShimoSheetCabinet extends CabinetBase {
     const collaboration: ShimoSDK.Common.Collaboration = new this.sdkCommon.Collaboration(collaborationOptions)
     collaboration.start()
 
-    this.collaboration = collaboration
+    this.plugins.collaboration = this.collaboration = collaboration
 
     this.afterPluginReady.push(() => {
       if (!this.collaboration) {
