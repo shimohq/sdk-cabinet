@@ -126,8 +126,14 @@ class ShimoSheetCabinet extends CabinetBase {
   public destroy (): void {
     this.editor.destroy()
     for (const k in this.plugins) {
-      if (this.plugins[k] && typeof this.plugins[k].destroy === 'function') {
-        this.plugins[k].destroy()
+      const plugin = this.plugins[k]
+      if (plugin) {
+        if (typeof plugin.destroy === 'function') {
+          plugin.destroy()
+        }
+        if (typeof plugin.commentModel?.destory === 'function') {
+          plugin.commentModel.destory()
+        }
       }
     }
   }
