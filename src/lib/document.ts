@@ -180,7 +180,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
       return
     }
 
-    const options: ShimoSDK.Document.HistoryOptions = assign(
+    const options = assign(
       {},
       this.pluginOptions.History,
       {
@@ -193,7 +193,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
           user: `${this.entrypoint}/users?accessToken=${this.token}`
         }
       }
-    )
+    ) as ShimoSDK.Document.HistoryOptions
 
     const history: ShimoSDK.Document.History = new this.sdkDocument.plugins.History(options)
     this.plugins.history = history
