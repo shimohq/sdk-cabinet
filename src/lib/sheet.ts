@@ -26,6 +26,13 @@ class ShimoSheetCabinet extends CabinetBase {
     historySidebarSkeleton?: ShimoSDK.Sheet.HistorySidebarSkeleton
     pivotTable?: ShimoSDK.Sheet.PivotTable
     print?: ShimoSDK.Sheet.Print
+    toolbar?: ShimoSDK.Sheet.Toolbar
+    contextMenu?: ShimoSDK.Sheet.SheetContextmenu
+    shortcut?: ShimoSDK.Sheet.Shortcut
+    chart?: ShimoSDK.Sheet.Chart
+    fill?: ShimoSDK.Sheet.Fill
+    lock?: ShimoSDK.Sheet.Lock
+    filterViewport?: ShimoSDK.Sheet.FilterViewport
   }
 
   private sdkSheet: any
@@ -131,9 +138,6 @@ class ShimoSheetCabinet extends CabinetBase {
         if (typeof plugin.destroy === 'function') {
           plugin.destroy()
         }
-        if (typeof plugin.commentModel?.destory === 'function') {
-          plugin.commentModel.destory()
-        }
       }
     }
   }
@@ -158,6 +162,7 @@ class ShimoSheetCabinet extends CabinetBase {
     container.classList.add('sm-toolbar')
 
     toolbar.render({ container })
+    this.plugins.toolbar = toolbar
   }
 
   public initContextMenu (editor: ShimoSDK.Sheet.Editor): void {
@@ -177,6 +182,7 @@ class ShimoSheetCabinet extends CabinetBase {
       this.element
     )
     contextMenu.render({ container })
+    this.plugins.contextMenu = contextMenu
   }
 
   public initComment (editor: ShimoSDK.Sheet.Editor): void {
@@ -315,7 +321,7 @@ class ShimoSheetCabinet extends CabinetBase {
       this.pluginOptions.Shortcut,
       { editor }
     )
-    const _ = new this.sdkSheet.plugins.Shortcut(options)
+    this.plugins.shortcut = new this.sdkSheet.plugins.Shortcut(options)
   }
 
   public initChart (editor: ShimoSDK.Sheet.Editor): void {
@@ -328,7 +334,7 @@ class ShimoSheetCabinet extends CabinetBase {
       this.pluginOptions.Shortcut,
       { editor }
     )
-    const _ = new this.sdkSheet.plugins.Chart(options)
+    this.plugins.chart = new this.sdkSheet.plugins.Chart(options)
   }
 
   public initFill (editor: ShimoSDK.Sheet.Editor): void {
@@ -341,7 +347,7 @@ class ShimoSheetCabinet extends CabinetBase {
       this.pluginOptions.Fill,
       { editor }
     )
-    const _ = new this.sdkSheet.plugins.Fill(options)
+    this.plugins.fill = new this.sdkSheet.plugins.Fill(options)
   }
 
   public initFilterViewport (editor: ShimoSDK.Sheet.Editor): void {
@@ -354,7 +360,7 @@ class ShimoSheetCabinet extends CabinetBase {
       this.pluginOptions.FilterViewport,
       { editor }
     )
-    const _ = new this.sdkSheet.plugins.FilterViewport(options)
+    this.plugins.filterViewport = new this.sdkSheet.plugins.FilterViewport(options)
   }
 
   public initCollaboration (editor: ShimoSDK.Sheet.Editor): void {
@@ -537,7 +543,7 @@ class ShimoSheetCabinet extends CabinetBase {
       options.fetchCollaborators = lockOptions.fetchCollaborators
     }
 
-    const _ = new this.sdkSheet.plugins.Lock(options)
+    this.plugins.lock = new this.sdkSheet.plugins.Lock(options)
   }
 
   public initPrint (editor: ShimoSDK.Sheet.Editor): void {
