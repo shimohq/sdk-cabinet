@@ -58,9 +58,9 @@ class ShimoSlideCabinet extends CabinetBase {
 
     const layouts = new this.sdkSlide.plugins.Layouts({ editor }) as ShimoSDK.Slide.Layouts
     await layouts.render(this.element, options).then(() => new this.sdkSlide.plugins.Player({ editor }))
-    editor.__GC__.layouts = layouts
+    this.plugins.layouts = layouts
 
-    editor.collaborators = editor.__GC__.collaborators = new this.sdkSlide.plugins.Collaborators({
+    this.plugins.collaborators = editor.collaborators = new this.sdkSlide.plugins.Collaborators({
       editor,
       currentUserId: this.user.id
     })
@@ -79,6 +79,7 @@ class ShimoSlideCabinet extends CabinetBase {
       selectUrl: urlPrefix + '/select' + urlSuffix
     })
     collaboration.start()
+    this.plugins.collaboration = collaboration
 
     return editor
   }
@@ -88,19 +89,18 @@ class ShimoSlideCabinet extends CabinetBase {
       return
     }
 
-    ['collaboration', 'layouts'].forEach(k => {
-      const item = this.editor.__GC__[k]
-      if (item && typeof item.destroy === 'function') {
-        item.destroy()
+    for (const k in this.plugins) {
+      const plugin = this.plugins[k]
+      if (plugin && typeof plugin.destroy === 'function') {
+        plugin.destroy()
       }
-    })
+    }
 
     this.editor.destroy()
   }
 
   public initEditor (): ShimoSDK.Slide.Editor {
     const editor = new this.sdkSlide.Editor({ file: this.file.content })
-    editor.__GC__ = {}
     return editor
   }
 }
