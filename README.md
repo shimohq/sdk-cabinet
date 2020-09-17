@@ -89,10 +89,19 @@ yarn add shimo-sdk-cabinet
 
 以 React 为例：
 
+`shimo-sdk-cabinet/dist` 下的文件为已经过打包处理、兼容 `ES5` 的代码，包含
+
+- `cabinet.min.js` 不包含任何套件的初始化工具，仅在需定制插件时使用
+- `document.min.js` 文档
+- `document-pro.min.js` 专业文档
+- `sheet.min.js` 表格
+- `slide.min.js` 幻灯片
+
 ```js
 import React from "react"
 import ReactDOM from "react-dom"
 
+// 仅加载文档套件
 import ShimoCabinet from 'shimo-sdk-cabinet/dist/document.min.js'
 
 class Editor extends React.Component {
@@ -121,19 +130,22 @@ class Editor extends React.Component {
 ReactDOM.render(<Editor />, document.getElementById('app'))
 ```
 
-如有定制需求，希望自定义使用部分插件：
+如有定制需求，比如希望自定义使用部分插件 (一般建议采用上述方式自动处理配置) ：
 
 ```js
 import React from "react"
 import ReactDOM from "react-dom"
 
-import ShimoCabinet from 'shimo-sdk-cabinet'
+// ES5 兼容的格式
+import ShimoCabinet from 'shimo-sdk-cabinet/dist/cabinet.min.js'
+// TypeScript 可用原始文件
+// import ShimoCabinet from 'shimo-sdk-cabinet'
 
-// 加载石墨 JS SDK 资源
-import from 'shimo-sdk-cabinet/vendor/shimo-jssdk/shimo.sdk.common.min.js'
-import from 'shimo-sdk-cabinet/vendor/shimo-jssdk/shimo.sdk.document.editor.min.js'
-// 假设只启用工具栏插件
-import from 'shimo-sdk-cabinet/vendor/shimo-jssdk/shimo.sdk.document.plugins.toolbar.min.js'
+// 加载石墨 JS SDK 资源，需要用 script-loader 等方式加载，不能再次使用 webpack 或其他工具重新处理
+require('shimo-sdk-cabinet/vendor/shimo-jssdk/shimo.sdk.common.min.js')
+require('shimo-sdk-cabinet/vendor/shimo-jssdk/shimo.sdk.document.editor.min.js')
+// 假设只启用上传插件
+require('shimo-sdk-cabinet/vendor/shimo-jssdk/shimo.sdk.document.plugins.uploader.min.js')
 
 class Editor extends React.Component {
   componentDidMount () {
@@ -148,24 +160,19 @@ class Editor extends React.Component {
       editorOptions: {
         plugins: {
           // 以默认选项启用工具栏插件
-          Toolbar: true,
-
-          // 自定义插件选项
-          Collaborator: {
+          Uploader: {
             // 自定义选项
-            // avatarTrack: true
-            // ...
           },
 
           // 停用其他插件
+          Collaborator: false,
           Collaboration: false,
           Comment: false,
           DemoScreen: false,
           Gallery: false,
           History: false,
           Shortcut: false,
-          TableOfContent: false,
-          Uploader: false
+          TableOfContent: false
         }
       }
     })
