@@ -221,6 +221,17 @@ ReactDOM.render(<Editor />, document.getElementById('app'))
 | plugins.Toolbar | object<br>boolean | 可选 | 工具栏插件，详见 [`d.ts` 文件](typings/document/plugins/toolbar/index.d.ts) |
 | plugins.Uploader | object<br>boolean | 可选 | 文件上传器插件，详见 [`d.ts` 文件](typings/document/plugins/uploader/index.d.ts) |
 
+默认初始化的插件：
+- 协作者
+- 协作
+- 划词评论
+- 演示模式
+- 相册
+- 历史
+- 快捷键
+- 工具栏
+- 文件上传器
+
 ##### 专业文档 (`document-pro`) 配置
 
 专业文档暂没有定制化配置。
@@ -242,6 +253,19 @@ ReactDOM.render(<Editor />, document.getElementById('app'))
 | plugins.Lock | object<br>boolean | 可选 | 锁定插件，详见 [`d.ts` 文件](typings/sheet/plugins/lock/index.d.ts) |
 | plugins.Shortcut | object<br>boolean | 可选 | 快捷键插件，详见 [`d.ts` 文件](typings/sheet/plugins/shortcut/index.d.ts) |
 | plugins.Toolbar | object<br>boolean | 可选 | 工具栏插件，详见 [`d.ts` 文件](typings/sheet/plugins/toolbar/index.d.ts) |
+
+默认初始化的插件：
+- 协作者
+- 协作
+- 划词评论
+- 上下文
+- 下拉填充
+- 筛选
+- 公式
+- 历史
+- 锁定
+- 快捷键
+- 工具栏
 
 ##### 幻灯片 (`slide`) 配置
 
