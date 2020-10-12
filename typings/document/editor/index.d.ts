@@ -95,6 +95,7 @@ declare enum Events {
 export default class Editor {
   public editorActions: EditActions
   public events: Events
+  public isReady: boolean
   comment: Comment
   constructor (options: EditorOptions);
   render (element: Element, options: EditorRenderOptions): void
