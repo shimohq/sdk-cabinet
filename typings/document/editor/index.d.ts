@@ -9,6 +9,7 @@ import { TableOfContentOptions } from '../plugins/tableOfContent'
 import { ToolbarOptions } from '../plugins/toolbar'
 import { UploaderOptions } from '../plugins/uploader'
 import { RevisionOptions } from '../plugins/revision'
+import { MobileOptions } from '../plugins/mobile'
 
 export interface EditorOptions extends BaseEditor.EditorOptions {
   // 用户 ID
@@ -41,6 +42,9 @@ export interface EditorOptions extends BaseEditor.EditorOptions {
    * }
    */
   plugins?: Plugins
+
+  // 是否启用移动端布局
+  isMobile?: boolean
 }
 
 interface ModulesToolbarOptions {
@@ -69,6 +73,7 @@ export interface Plugins {
   TableOfContent?: boolean | TableOfContentOptions
   Toolbar?: boolean | ToolbarOptions
   Uploader?: boolean | UploaderOptions
+  Mobile?: boolean | MobileOptions
 }
 
 export interface EditorRenderOptions {

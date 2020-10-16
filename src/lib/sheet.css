@@ -1,3 +1,14 @@
+.sm-editor,
+.sm-editor *,
+.sm-toolbar,
+.sm-toolbar *,
+.sm-comment,
+.sm-comment *,
+.sm-mobile-sheet-tab,
+.sm-mobile-sheet-tab * {
+  box-sizing: initial;
+}
+
 .toolBar--tool .sm-external-actions-history {
   display: table-cell;
   font-size: 11px;

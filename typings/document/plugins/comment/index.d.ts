@@ -69,6 +69,16 @@ export interface CommentOptions extends BasePluginOptions{
      */
     file: IFile
   }
+
+  /**
+   * 是否展示评论浮动框，移动端需关闭
+   */
+  hasPanel?: boolean
+
+  /**
+   * 是否显示添加评论按钮，移动端需关闭
+   */
+  hasGenerator?: boolean
 }
 
 export default class Comment extends EventEmitter<Events> {

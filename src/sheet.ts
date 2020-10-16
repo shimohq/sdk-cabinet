@@ -21,6 +21,11 @@ import '../vendor/shimo-jssdk/shimo.sdk.sheet.plugins.toolbar.min.js'
 import '../vendor/shimo-jssdk/shimo.sdk.sheet.plugins.conditionalFormat.min.js'
 import '../vendor/shimo-jssdk/shimo.sdk.sheet.plugins.historySidebar.min.js'
 import '../vendor/shimo-jssdk/shimo.sdk.sheet.plugins.pivotTable.min.js'
+import '../vendor/shimo-jssdk/shimo.sdk.sheet.plugins.mobileContextmenu.min.js'
+import '../vendor/shimo-jssdk/shimo.sdk.sheet.plugins.mobileSheetTab.min.js'
+import '../vendor/shimo-jssdk/shimo.sdk.sheet.plugins.mobileToolbar.min.js'
+import '../vendor/shimo-jssdk/shimo.sdk.sheet.plugins.basicPlugins.min.js'
+import '../vendor/shimo-jssdk/shimo.sdk.sheet.plugins.dataValidation.min.js'
 
 ShimoCabinet.globals = {
   common: window.shimo.sdk.common,

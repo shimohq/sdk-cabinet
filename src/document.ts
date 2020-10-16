@@ -13,6 +13,7 @@ import '../vendor/shimo-jssdk/shimo.sdk.document.plugins.comment.min.js'
 import '../vendor/shimo-jssdk/shimo.sdk.document.plugins.mention.min.js'
 import '../vendor/shimo-jssdk/shimo.sdk.document.plugins.demo-screen.min.js'
 import '../vendor/shimo-jssdk/shimo.sdk.document.plugins.revision.min.js'
+import '../vendor/shimo-jssdk/shimo.sdk.document.plugins.mobile.min.js'
 
 ShimoCabinet.globals = {
   common: window.shimo.sdk.common,

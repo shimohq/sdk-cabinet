@@ -42,6 +42,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     uploader?: ShimoSDK.Document.Uploader
     shortcut?: ShimoSDK.Document.Shortcut
     revision?: ShimoSDK.Document.Revision
+    mobile?: ShimoSDK.Document.Mobile
   }
 
   private sdkCommon: any
@@ -84,7 +85,8 @@ export default class ShimoDocumentCabinet extends CabinetBase {
       options.editorOptions.plugins,
       {
         Revision: false
-      }
+      },
+      plugin => plugin !== 'Mobile'
     )
     this._commentShowCount = 0
   }
@@ -134,6 +136,13 @@ export default class ShimoDocumentCabinet extends CabinetBase {
 
     this.initPlugins(editor)
 
+    if (this.editorOptions.isMobile) {
+      document.body.classList.add('in-mobile')
+      editorElm.classList.add('in-mobile')
+      editorScroller.classList.add('in-mobile')
+      this.initMobile(editor, editorElm)
+    }
+
     this.editor = editor
 
     return editor
@@ -166,6 +175,24 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     return new this.sdkDocument.Editor(options)
   }
 
+  public initMobile (editor: ShimoSDK.Document.Editor, editorElm: HTMLElement): void {
+    if (this.editorOptions.isMobile) {
+      const options = assign(
+        {
+          commentable: this.editorOptions.commentable
+        },
+        this.pluginOptions.Mobile,
+        {
+          editor,
+          editorWrap: editorElm,
+          comment: this.plugins.comment,
+          toolbar: true
+        }
+      ) as ShimoSDK.Document.MobileOptions
+      this.plugins.mobile = new this.sdkDocument.plugins.Mobile(options)
+    }
+  }
+
   public initGallery (editor: ShimoSDK.Document.Editor): void {
     if (this.pluginOptions.Gallery === false) {
       return
@@ -184,7 +211,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   }
 
   public initHistory (editor: ShimoSDK.Document.Editor): void {
-    if (this.pluginOptions.History === false) {
+    if (this.pluginOptions.History === false || this.editorOptions.isMobile) {
       return
     }
 
@@ -242,7 +269,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   }
 
   public initTableOfContent (editor: ShimoSDK.Document.Editor): void {
-    if (this.pluginOptions.TableOfContent === false) {
+    if (this.pluginOptions.TableOfContent === false || this.editorOptions.isMobile) {
       return
     }
 
@@ -344,6 +371,11 @@ export default class ShimoDocumentCabinet extends CabinetBase {
       }
     )
 
+    if (this.editorOptions.isMobile) {
+      options.hasPanel = false
+      options.hasGenerator = false
+    }
+
     const comment: ShimoSDK.Document.Comment = new this.sdkDocument.plugins.Comment(options)
     this.plugins.comment = editor.comment = comment
     comment.render()
@@ -351,7 +383,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   }
 
   public initDemoScreen (editor: ShimoSDK.Document.Editor) {
-    if (this.pluginOptions.DemoScreen === false) {
+    if (this.pluginOptions.DemoScreen === false || this.editorOptions.isMobile) {
       return
     }
 
@@ -381,7 +413,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   }
 
   public initShortcut (editor: ShimoSDK.Document.Editor): void {
-    if (this.pluginOptions.Shortcut === false) {
+    if (this.pluginOptions.Shortcut === false || this.editorOptions.isMobile) {
       return
     }
 
@@ -401,6 +433,10 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   }
 
   public initRevision (editor: ShimoSDK.Document.Editor): void {
+    if (this.editorOptions.isMobile) {
+      return
+    }
+
     const pluginOptions = this.pluginOptions.Revision
     if (
       pluginOptions !== true &&

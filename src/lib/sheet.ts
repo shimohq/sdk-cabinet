@@ -33,6 +33,8 @@ class ShimoSheetCabinet extends CabinetBase {
     fill?: ShimoSDK.Sheet.Fill
     lock?: ShimoSDK.Sheet.Lock
     filterViewport?: ShimoSDK.Sheet.FilterViewport
+    sheetTab?: ShimoSDK.Sheet.SheetTab
+    basic?: ShimoSDK.Sheet.BasicPlugins
   }
 
   private sdkSheet: any
@@ -67,19 +69,40 @@ class ShimoSheetCabinet extends CabinetBase {
     this.plugins = {}
 
     const file = this.file = options.file
-    this.editorOptions = Object.assign({
-      uploadConfig: {
-        origin: file.config.uploadOrigin,
-        server: file.config.uploadServer,
-        token: file.config.uploadToken,
-        maxFileSize: file.config.uploadMaxFileSize
+    this.editorOptions = assign(
+      {
+        uploadConfig: {
+          origin: file.config.uploadOrigin,
+          server: file.config.uploadServer,
+          token: file.config.uploadToken,
+          maxFileSize: file.config.uploadMaxFileSize
+        }
       },
-      editable: file.permissions.editable,
-      commentable: file.permissions.commentable
-    }, options.editorOptions)
+      options.editorOptions,
+      {
+        editable: file.permissions.editable,
+        commentable: file.permissions.commentable,
+        user: file.config.user
+      }
+    )
 
     this.availablePlugins = options.availablePlugins
-    this.pluginOptions = this.preparePlugins(options.editorOptions.plugins)
+    this.pluginOptions = this.preparePlugins(
+      options.editorOptions.plugins,
+      { Lock: false },
+      this.editorOptions.isMobile ?
+        plugin => [
+          'ContextMenu',
+          'Toolbar',
+          'HistorySidebarSkeleton',
+          'Print',
+          'File',
+          'Basic',
+          'Shortcut',
+          'FormulaSidebar'
+        ].indexOf(plugin) === -1 :
+        undefined
+    )
     this.afterPluginReady = []
   }
 
@@ -146,13 +169,30 @@ class ShimoSheetCabinet extends CabinetBase {
     return new this.sdkSheet.Editor(options)
   }
 
+  public initBasicPlugins (editor: ShimoSDK.Sheet.Editor): void {
+    const options = assign(
+      {
+        editor,
+        disableHighlightPosition: false,
+        disableSplitColumns: this.editorOptions.isMobile,
+        disableNumberText: this.editorOptions.isMobile,
+        disableZoomScale: this.editorOptions.isMobile,
+        disableFullscreen: this.editorOptions.isMobile,
+        disableStatusBar: this.editorOptions.isMobile
+      },
+      this.pluginOptions.Toolbar,
+      { editor }
+    ) as ShimoSDK.Sheet.BasePluginOptions
+
+    this.plugins.basic = new this.sdkSheet.plugins.BasicPlugins(options)
+  }
+
   public initToolbar (editor: ShimoSDK.Sheet.Editor): void {
-    if (this.pluginOptions.Toolbar === false) {
+    if (this.pluginOptions.Toolbar === false || this.editorOptions.isMobile) {
       return
     }
 
     const options: ShimoSDK.Sheet.ToolbarOptions = assign({}, this.pluginOptions.Toolbar, { editor })
-    const toolbar: ShimoSDK.Sheet.Toolbar = new this.sdkSheet.plugins.Toolbar(options)
 
     let container = this.getElement(options.container)
     if (container === null) {
@@ -160,13 +200,34 @@ class ShimoSheetCabinet extends CabinetBase {
       this.element.insertBefore(container, this.element.firstChild)
     }
     container.classList.add('sm-toolbar')
-
-    toolbar.render({ container })
+    const toolbar: ShimoSDK.Sheet.Toolbar = new this.sdkSheet.plugins.Toolbar(options)
     this.plugins.toolbar = toolbar
   }
 
+  public initMobileToolbar (editor: ShimoSDK.Sheet.Editor) {
+    if (this.editorOptions.isMobile) {
+      const options = assign({}, this.pluginOptions.MobileToolbar, { editor }) as ShimoSDK.Sheet.BasePluginOptions
+
+      let container = this.getElement(options.container)
+      if (!container) {
+        container = this.getElement(undefined, 'div', { id: 'sm-toolbar' })
+        this.element.insertBefore(container, this.element.firstChild)
+      }
+      container.classList.add('sm-toolbar')
+
+      this.plugins.toolbar = new window.shimo.sdk.sheet.plugins.MobileToolbar({ editor, container })
+    }
+  }
+
+  public initMobileContextmenu (editor: ShimoSDK.Sheet.Editor) {
+    if (this.editorOptions.isMobile) {
+      this.plugins.contextMenu = new this.sdkSheet.plugins.MobileContextmenu({ editor })
+      return
+    }
+  }
+
   public initContextMenu (editor: ShimoSDK.Sheet.Editor): void {
-    if (this.pluginOptions.ContextMenu === false) {
+    if (this.pluginOptions.ContextMenu === false || this.editorOptions.isMobile) {
       return
     }
 
@@ -226,7 +287,7 @@ class ShimoSheetCabinet extends CabinetBase {
   }
 
   public initHistorySidebarSkeleton (editor: ShimoSDK.Sheet.Editor): void {
-    if (this.pluginOptions.HistorySidebarSkeleton === false) {
+    if (this.pluginOptions.HistorySidebarSkeleton === false || this.editorOptions.isMobile) {
       return
     }
 
@@ -518,16 +579,8 @@ class ShimoSheetCabinet extends CabinetBase {
       return
     }
 
-    const options: ShimoSDK.Sheet.LockOptions = assign(
-      {
-        permission: {
-          read: this.file.permissions.readable,
-          edit: this.file.permissions.editable,
-          comment: this.file.permissions.commentable,
-          lock: this.file.permissions.editable,
-          manage: this.file.userId === this.user.id
-        }
-      },
+    const options = assign(
+      {},
       this.pluginOptions.Lock,
       {
         editor,
@@ -535,7 +588,7 @@ class ShimoSheetCabinet extends CabinetBase {
           id: this.user.id
         }
       }
-    )
+    ) as ShimoSDK.Sheet.LockOptions
 
     const plugins = this.pluginOptions
     const lockOptions = plugins.Lock! as ShimoSDK.Sheet.LockOptions
@@ -568,6 +621,26 @@ class ShimoSheetCabinet extends CabinetBase {
     }
 
     this.plugins.pivotTable = new this.sdkSheet.plugins.PivotTable({ editor })
+  }
+
+  public initMobileSheetTab (editor: ShimoSDK.Sheet.Editor) {
+    if (!this.editorOptions.isMobile || this.pluginOptions.MobileSheetTab === false) {
+      return
+    }
+
+    const options = assign({}, this.pluginOptions.MobileSheetTab) as ShimoSDK.Sheet.BasePluginOptions
+
+    let container = this.getElement(options.container)
+    if (!container) {
+      container = this.getElement(undefined, 'div', { id: 'sm-mobile-sheet-tab' })
+      this.element.append(container)
+    }
+    container.classList.add('sm-mobile-sheet-tab')
+
+    this.plugins.sheetTab = new this.sdkSheet.plugins.MobileSheetTab({
+      editor,
+      container: container
+    })
   }
 
   private updateEditorOptions (options?: {

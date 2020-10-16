@@ -35,6 +35,9 @@ export interface EditorOptions extends BaseEditor.EditorOptions {
    * }
    */
   plugins?: Plugins
+
+  // 是否启用移动端布局
+  isMobile?: boolean
 }
 /*
 * 表格编辑器渲染参数
@@ -75,6 +78,8 @@ export interface Plugins {
   Toolbar?: boolean | BasePluginOptions
   PivotTable?: boolean | BasePluginOptions
   Print?: boolean | BasePluginOptions
+  MobileSheetTab?: boolean | BasePluginOptions
+  MobileToolbar?: boolean | BasePluginOptions
 }
 
 /**

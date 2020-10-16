@@ -15,6 +15,9 @@ import * as ILock from './sheet/plugins/lock'
 import * as ISheetPrint from './sheet/plugins/print'
 import IConditionalFormat from './sheet/plugins/conditionalFormat'
 import IPivotTable from './sheet/plugins/pivotTable'
+import ISheetTab from './sheet/plugins/mobile-sheet-tab'
+import IMobileToolbar from './sheet/plugins/mobile-toolbar'
+import IBasicPlugins from './sheet/plugins/basic-plugins'
 
 import * as IDocEditor from './document/editor'
 import * as IDocGallery from './document/plugins/gallery'
@@ -26,6 +29,7 @@ import * as IDocComment from './document/plugins/comment'
 import * as IDocDemoScreen from './document/plugins/demoScreen'
 import * as IDocUploader from './document/plugins/uploader'
 import * as IDocShortcut from './document/plugins/shortcut'
+import IMobile, { MobileOptions as _MobileOptions } from './document/plugins/mobile'
 import IDocRevision, { RevisionOptions as IRevisionOptions } from './document/plugins/revision'
 
 import * as ISlideEditor from './slide/editor'
@@ -52,7 +56,8 @@ interface IFile {
     uploadMaxFileSize: number,
     uploadOrigin: string,
     uploadServer: string,
-    uploadToken: string
+    uploadToken: string,
+    user: IUser
   }
   userId: number
   permissions: {
@@ -104,6 +109,9 @@ declare global {
       export type Print = ISheetPrint.default
       export type ConditionalFormat = IConditionalFormat
       export type PivotTable = IPivotTable
+      export type SheetTab = ISheetTab
+      export type MobileToolbar = IMobileToolbar
+      export type BasicPlugins = IBasicPlugins
     }
 
     namespace Document {
@@ -130,6 +138,8 @@ declare global {
       export type ShortcutOptions = IDocShortcut.ShortcutOptions
       export type Revision = IDocRevision
       export type RevisionOptions = IRevisionOptions
+      export type Mobile = IMobile
+      export type MobileOptions = _MobileOptions
       export import Plugins = IDocEditor.Plugins
     }
 

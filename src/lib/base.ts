@@ -88,10 +88,13 @@ export default class CabinetBase {
   /**
    * 过滤未启用的插件
    */
-  protected preparePlugins<T> (plugins?: T, defaultOptions?: T): T {
+  protected preparePlugins<T> (plugins?: T, defaultOptions?: T, filter?: (name: string) => boolean): T {
     if (!isObject(plugins)) {
       plugins = this.availablePlugins.reduce((result, plugin) => {
-        result[plugin] = true
+        if (typeof filter === 'function' && !filter(plugin)) {
+          return result
+        }
+        result[plugin] = defaultOptions && defaultOptions[plugin] != null ? defaultOptions[plugin] : true
         return result
       }, {}) as T
     }
@@ -99,6 +102,10 @@ export default class CabinetBase {
     const result = {} as T
 
     for (const plugin of this.availablePlugins) {
+      if (typeof filter === 'function' && !filter(plugin)) {
+        continue
+      }
+
       const p = plugins[plugin]
 
       if (p === false) {

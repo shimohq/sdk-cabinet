@@ -229,6 +229,7 @@ ReactDOM.render(<Editor />, document.getElementById('app'))
 - 相册
 - 历史
 - 快捷键
+- 目录
 - 工具栏
 - 文件上传器
 
@@ -253,19 +254,19 @@ ReactDOM.render(<Editor />, document.getElementById('app'))
 | plugins.Lock | object<br>boolean | 可选 | 锁定插件，详见 [`d.ts` 文件](typings/sheet/plugins/lock/index.d.ts) |
 | plugins.Shortcut | object<br>boolean | 可选 | 快捷键插件，详见 [`d.ts` 文件](typings/sheet/plugins/shortcut/index.d.ts) |
 | plugins.Toolbar | object<br>boolean | 可选 | 工具栏插件，详见 [`d.ts` 文件](typings/sheet/plugins/toolbar/index.d.ts) |
+| plugins.Print | object<br>boolean | 可选 | 打印插件，详见 [`d.ts` 文件](typings/sheet/plugins/print/index.d.ts) |
 
-默认初始化的插件：
-- 协作者
-- 协作
-- 划词评论
+默认不初始化的插件：
+- 锁定。需要额外的定制化配置。
+
+移动端不可用的插件：
 - 上下文
 - 下拉填充
-- 筛选
+- 打印
 - 公式
-- 历史
-- 锁定
-- 快捷键
 - 工具栏
+- 历史
+- 快捷键
 
 ##### 幻灯片 (`slide`) 配置
 
@@ -278,37 +279,16 @@ ReactDOM.render(<Editor />, document.getElementById('app'))
     - 文档
     - 表格
 
-##### 文档
-
 ```js
-const cabinet = new ShimoCabinet({ ... })
-const editor = await cabinet.render()
-editor.container.classList.add('in-mobile')
-```
-
-##### 表格
-
-需要单独实现工作表切换，其他的不需要做适配。
-工作表切换菜单的实现：
-
-```js
-const cabinet = new ShimoCabinet({ ... })
-const editor = await cabinet.render()
-
-const events = cabinet.getSDK('sheet').Editor.events
-
-// 监听 editor 的变化，更新 menu
-editor.on(events.SHEET_TAB_LIST_UPDATED, () => {
-  // 获取所有 sheets
-  const sheets = editor.spread.getSheets()
-
-  // 获取当前被激活的 sheet
-  const activeSheet = editor.spread.getActiveSheet()
+const cabinet = new ShimoCabinet({
+  editorOptions: {
+    isMobile: true
+  }
 })
-
-// 点击菜单项之后，切换激活的工作表
-editor.spread.setActiveSheet(sheetId)
+cabinet.render()
 ```
+
+文档需要在 `body` 添加 `in-mobile` class。
 
 ### 补充说明
 
