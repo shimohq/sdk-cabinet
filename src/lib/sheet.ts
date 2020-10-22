@@ -201,6 +201,7 @@ class ShimoSheetCabinet extends CabinetBase {
     }
     container.classList.add('sm-toolbar')
     const toolbar: ShimoSDK.Sheet.Toolbar = new this.sdkSheet.plugins.Toolbar(options)
+    toolbar.render({ container })
     this.plugins.toolbar = toolbar
   }
 
