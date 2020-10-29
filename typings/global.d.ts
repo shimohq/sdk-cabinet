@@ -18,6 +18,7 @@ import IPivotTable from './sheet/plugins/pivotTable'
 import ISheetTab from './sheet/plugins/mobile-sheet-tab'
 import IMobileToolbar from './sheet/plugins/mobile-toolbar'
 import IBasicPlugins from './sheet/plugins/basic-plugins'
+import IDataValidation from './sheet/plugins/data-validation'
 
 import * as IDocEditor from './document/editor'
 import * as IDocGallery from './document/plugins/gallery'
@@ -112,6 +113,7 @@ declare global {
       export type SheetTab = ISheetTab
       export type MobileToolbar = IMobileToolbar
       export type BasicPlugins = IBasicPlugins
+      export type DataValidation = IDataValidation
     }
 
     namespace Document {

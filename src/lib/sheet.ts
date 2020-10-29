@@ -35,6 +35,7 @@ class ShimoSheetCabinet extends CabinetBase {
     filterViewport?: ShimoSDK.Sheet.FilterViewport
     sheetTab?: ShimoSDK.Sheet.SheetTab
     basic?: ShimoSDK.Sheet.BasicPlugins
+    dataValidation?: ShimoSDK.Sheet.DataValidation
   }
 
   private sdkSheet: any
@@ -76,6 +77,9 @@ class ShimoSheetCabinet extends CabinetBase {
           server: file.config.uploadServer,
           token: file.config.uploadToken,
           maxFileSize: file.config.uploadMaxFileSize
+        },
+        downloadConfig: {
+          entryPoint: this.entrypoint
         }
       },
       options.editorOptions,
@@ -642,6 +646,14 @@ class ShimoSheetCabinet extends CabinetBase {
       editor,
       container: container
     })
+  }
+
+  public initDataValidation (editor: ShimoSDK.Sheet.Editor) {
+    if (this.pluginOptions.DataValidation === false) {
+      return
+    }
+
+    this.plugins.dataValidation = new this.sdkSheet.plugins.DataValidation({ editor })
   }
 
   private updateEditorOptions (options?: {

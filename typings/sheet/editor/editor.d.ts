@@ -80,6 +80,7 @@ export interface Plugins {
   Print?: boolean | BasePluginOptions
   MobileSheetTab?: boolean | BasePluginOptions
   MobileToolbar?: boolean | BasePluginOptions
+  DataValidation?: boolean | BasePluginOptions
 }
 
 /**
