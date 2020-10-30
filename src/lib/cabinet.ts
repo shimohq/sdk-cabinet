@@ -17,6 +17,9 @@ if (window.shimo == null) {
 if (window.shimo.sdk == null) {
   window.shimo.sdk = {}
 }
+if (window.__RUNTIME_ENV__ == null) {
+  window.__RUNTIME_ENV__ = {}
+}
 /* tslint:enable */
 
 class ShimoCabinet {

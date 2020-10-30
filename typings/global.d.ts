@@ -164,5 +164,6 @@ declare global {
   interface Window {
     __env: { [key: string]: any }
     shimo: { [key: string]: any }
+    __RUNTIME_ENV__: any
   }
 }
