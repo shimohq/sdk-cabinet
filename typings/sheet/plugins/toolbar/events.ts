@@ -1,4 +1,4 @@
-declare enum Events {
+enum Events {
   ToolBarModeChanged = 'Toolbar:ToolBarModeChanged',
   SelectionChanged = 'Toolbar:SelectionChanged',
   PermissionChanged = 'Toolbar:PermissionChanged',
@@ -9,6 +9,7 @@ declare enum Events {
   PaintBrushSelected = 'Toolbar:PaintBrushSelected',
   ConditionalFormatNumberChanged = 'Toolbar:ConditionalFormatNumberChanged',
   FrozenChanged = 'Toolbar:FrozenChanged',
-  FilterChanged = 'Toolbar:FilterChanged'
+  FilterChanged = 'Toolbar:FilterChanged',
+  MenuLayoutChanged = 'Toolbar:ToolBarMenuLayoutChanged'
 }
 export default Events

@@ -2,6 +2,7 @@ import assign from 'object-assign'
 
 import CabinetBase from './base'
 import './sheet.css'
+import ToolbarEvents from '../../typings/sheet/plugins/toolbar/events'
 
 const STATUS = {
   OFFLINE: 'offline',
@@ -336,21 +337,17 @@ class ShimoSheetCabinet extends CabinetBase {
     historyBtn.addEventListener('click', () => historySidebarSkeleton.show())
     externalActions.appendChild(historyBtn)
 
-    const attachElm = () => {
-      setTimeout(() => {
-        if (!this.pluginsReady) {
-          return attachElm()
-        }
-
-        const toolbar = document.querySelector('.sm-toolbar')
-        if (toolbar) {
-          const groups = toolbar.querySelectorAll('.toolBar--content .toolBar--group')
+    this.afterPluginReady.push(() => {
+      if (this.plugins.toolbar) {
+        this.plugins.toolbar.on(ToolbarEvents.MenuLayoutChanged, () => {
+          console.log(ToolbarEvents.MenuLayoutChanged)
+          const toolbar = document.querySelector('.sm-toolbar')
+          const groups = toolbar!.querySelectorAll('.toolBar--content .toolBar--group')
           const elm = groups[groups.length - 2]
           elm.insertBefore(externalActions, elm.firstChild)
-        }
-      }, 50)
-    }
-    attachElm()
+        })
+      }
+    })
   }
 
   public initFormulaSidebar (editor: ShimoSDK.Sheet.Editor): void {
