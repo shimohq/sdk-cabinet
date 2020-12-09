@@ -3,6 +3,7 @@ import assign from 'object-assign'
 import CabinetBase from './base'
 import './sheet.css'
 import ToolbarEvents from '../../typings/sheet/plugins/toolbar/events'
+import { sheetPluginInitOrders, loadedResources } from './constants'
 
 const STATUS = {
   OFFLINE: 'offline',
@@ -14,11 +15,6 @@ const STATUS = {
   ONLINE_SAVED: 'onlineSaved',
   ONLINE_SAVE_FAILED: 'onlineSaveFailed',
   SERVER_CHANGE_APPLIED: 'serverChangeApplied'
-}
-
-const pluginInitOrders = {
-  highest: ['ConditionalFormat', 'DataValidation', 'FilterViewport', 'Lock', 'Toolbar'],
-  normal: ['Chart', 'Collaboration', 'Collaborators', 'Comment', 'ContextMenu', 'Fill', 'FormulaSidebar', 'Shortcut', 'BasicPlugins', 'PivotTable', 'Print']
 }
 
 class ShimoSheetCabinet extends CabinetBase {
@@ -52,8 +48,9 @@ class ShimoSheetCabinet extends CabinetBase {
   private file: ShimoSDK.File
   private editorOptions: ShimoSDK.Sheet.EditorOptions
   private collaboration: ShimoSDK.Common.Collaboration
-  private pluginsReady: boolean
   private afterPluginReady: (() => void)[]
+  private onError: (error: any) => void
+  private getPlugin: (name: string) => Promise<any>
   protected pluginOptions: ShimoSDK.Sheet.Plugins
 
   constructor (options: {
@@ -66,6 +63,8 @@ class ShimoSheetCabinet extends CabinetBase {
     file: ShimoSDK.File
     editorOptions: ShimoSDK.Sheet.EditorOptions
     availablePlugins: string[]
+    onError?: (error: any) => void
+    getPlugin: (name: string) => Promise<any>
   }) {
     super(options.element)
     this.sdkSheet = options.sdkSheet
@@ -74,6 +73,13 @@ class ShimoSheetCabinet extends CabinetBase {
     this.entrypoint = options.entrypoint
     this.token = options.token
     this.plugins = {}
+    this.getPlugin = options.getPlugin
+
+    if (typeof options.onError === 'function') {
+      this.onError = options.onError
+    } else {
+      this.onError = err => { throw err }
+    }
 
     const file = this.file = options.file
     this.editorOptions = assign(
@@ -116,7 +122,7 @@ class ShimoSheetCabinet extends CabinetBase {
     this.afterPluginReady = []
   }
 
-  public render (options?: ShimoSDK.Sheet.EditorRenderOptions) {
+  public async render (options?: ShimoSDK.Sheet.EditorRenderOptions) {
     const editorElm = this.getElement(undefined, 'div', { id: 'sm-editor', classList: ['sm-editor'] })
     this.element.appendChild(editorElm)
 
@@ -134,16 +140,26 @@ class ShimoSheetCabinet extends CabinetBase {
       }
     ))
 
-    this.initPlugins(editor)
-    this.pluginsReady = true
-    for (const cb of this.afterPluginReady) {
-      cb.call(this)
-    }
+    Promise
+      .all(sheetPluginInitOrders.highest.map(p => this.initPlugin(editor, p)))
+      .then(() => {
+        editor.spread.gcSpread._doResize()
 
-    const referenceNode = document.getElementById('toolbar') && document.getElementById('contextmenu')
-    if (referenceNode) {
-      this.insertAfter(referenceNode, editorElm)
-    }
+        for (const cb of this.afterPluginReady) {
+          cb.call(this)
+        }
+
+        this.afterPluginReady = []
+
+        const referenceNode = document.getElementById('toolbar') && document.getElementById('contextmenu')
+        if (referenceNode) {
+          this.insertAfter(referenceNode, editorElm)
+        }
+      })
+      .then(() => Promise.all(sheetPluginInitOrders.normal.map(p => this.initPlugin(editor, p))))
+      .catch(err => this.onError(err))
+      .then(() => this.afterPluginReady = [])
+      .catch(err => this.onError(err))
 
     editor.on(this.sdkSheet.sheets.Events, (msg) => {
       this.sdkSheet.sheets.utils.confirm({
@@ -179,30 +195,20 @@ class ShimoSheetCabinet extends CabinetBase {
     return new this.sdkSheet.Editor(options)
   }
 
-  /**
-   * 初始化所有启用的插件
-   */
-  protected initPlugins (editor: ShimoSDK.Sheet.Editor | ShimoSDK.Document.Editor) {
-    const self = this
-
-    for (const name of pluginInitOrders.highest) {
-      init(name)
+  private async initPlugin (editor: ShimoSDK.Sheet.Editor, plugin: string) {
+    if (plugin in this.pluginOptions === false) {
+      return
     }
 
-    setTimeout(() => {
-      for (const name of pluginInitOrders.normal) {
-        init(name)
-      }
-    })
+    if (plugin !== 'Collaboration' && plugin !== 'Collaborators') {
+      await this.getPlugin(plugin)
+    } else {
+      await this.getPlugin('Collaborators')
+    }
 
-    function init (name: string) {
-      if (name in self.pluginOptions === false) {
-        return
-      }
-      const method = `init${name}`
-      if (typeof self[method] === 'function') {
-        self[method](editor)
-      }
+    const method = `init${plugin}`
+    if (typeof this[method] === 'function') {
+      this[method](editor)
     }
   }
 
@@ -372,7 +378,6 @@ class ShimoSheetCabinet extends CabinetBase {
     this.afterPluginReady.push(() => {
       if (this.plugins.toolbar) {
         this.plugins.toolbar.on(ToolbarEvents.MenuLayoutChanged, () => {
-          console.log(ToolbarEvents.MenuLayoutChanged)
           const toolbar = document.querySelector('.sm-toolbar')
           const groups = toolbar!.querySelectorAll('.toolBar--content .toolBar--group')
           const elm = groups[groups.length - 2]

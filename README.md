@@ -278,7 +278,7 @@ ReactDOM.render(<Editor />, document.getElementById('app'))
 
 由于打包后的文件较大，如 `dist/sheet.min.js`，且文档数据接口请求也是在 JS 加载完后进行，会影响整体性能。
 
-因此提供 `externals` 来缓解此问题。
+因此提供 `externals` 来缓解此问题。**此模式仅支持文档 (document) 和表格 (sheet) 。**
 
 ```js
 import ShimoCabinet from 'shimo-sdk-cabinet/dist/cabinet.min.js'
@@ -334,6 +334,17 @@ externals: {
 - `cabinet.min.js` 更新时，其他没有更新的 JS SDK 组件可有效利用 CDN 缓存，减少用户下载量
 - Ajax 请求和 `script` 请求和并行加载
 
+#### 事件
+
+`ShimoCabinet` 借助 [tiny-emitter](https://github.com/scottcorgan/tiny-emitter) 提供了事件订阅功能：
+
+```js
+cabinet('error', errorHandler)
+```
+
+目前支持的事件：
+
+- `error`：任何在运行中，无法正常抛出的错误都会用此事件抛出
 #### 移动端适配
 
  - 移动端目前尽量保证浏览效果，编辑功能和桌面端有差距

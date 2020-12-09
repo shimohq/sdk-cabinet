@@ -54,6 +54,8 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   private token: string
   private collaboration: ShimoSDK.Common.Collaboration
   private _commentShowCount: number
+  private onError: (error: any) => void
+  private getPlugin: (name: string) => Promise<any>
   protected pluginOptions: ShimoSDK.Document.Plugins
 
   constructor (options: {
@@ -66,6 +68,8 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     file: ShimoSDK.File
     editorOptions: ShimoSDK.Document.EditorOptions
     availablePlugins: string[]
+    onError?: (error: any) => void
+    getPlugin: (name: string) => Promise<any>
   }) {
     super(options.element)
     this.sdkCommon = options.sdkCommon
@@ -89,6 +93,13 @@ export default class ShimoDocumentCabinet extends CabinetBase {
       plugin => plugin !== 'Mobile'
     )
     this._commentShowCount = 0
+    this.getPlugin = options.getPlugin
+
+    if (typeof options.onError === 'function') {
+      this.onError = options.onError
+    } else {
+      this.onError = err => { throw err }
+    }
   }
 
   public render () {
@@ -134,7 +145,10 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     )
     editor.setContent(this.file.content)
 
-    this.initPlugins(editor)
+    Promise
+      .all(this.availablePlugins.map(p => this.initPlugin(editor, p)))
+      .then(() => this.initCollaboration(editor))
+      .catch(err => this.onError(err))
 
     if (this.editorOptions.isMobile) {
       document.body.classList.add('in-mobile')
@@ -146,6 +160,23 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     this.editor = editor
 
     return editor
+  }
+
+  private async initPlugin (editor: ShimoSDK.Document.Editor, plugin: string) {
+    if (plugin in this.pluginOptions === false) {
+      return
+    }
+
+    if (plugin !== 'Collaboration' && plugin !== 'Toolbar') {
+      await this.getPlugin(plugin)
+    }
+
+    const method = `init${plugin}`
+    if (typeof this[method] === 'function') {
+      if (plugin !== 'Collaboration') {
+        this[method](editor)
+      }
+    }
   }
 
   public destroy (): void {

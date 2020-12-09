@@ -3,12 +3,14 @@ import assign from 'object-assign'
 import get from 'lodash.get'
 import fetch from 'unfetch'
 import forIn from 'lodash.forin'
+import { TinyEmitter } from 'tiny-emitter'
 
 import ShimoDocumentCabinet from './document'
 import ShimoSheetCabinet from './sheet'
 import ShimoSlideCabinet from './slide'
 import ShimoDocumentProCabinet from './document-pro'
 import assert from '../util/assert'
+import { sheetPluginList, sheetPluginListReverse, loadedResources, documentPluginList, documentPluginListReverse } from './constants'
 
 /* tslint:disable:strict-type-predicates */
 // 设置全局命名空间
@@ -56,7 +58,7 @@ interface ExternalResource {
     conditionalFormat?: string
     dataValidation?: string
     fill?: string
-    filterViewPort?: string
+    filterViewport?: string
     form?: string
     formulaSidebar?: string
     historySidebar?: string
@@ -85,9 +87,7 @@ interface ExternalResource {
  */
 type ExternalLoader = (src: string) => Promise<void>
 
-const loadedResources: { [key: string]: boolean } = {}
-
-class ShimoCabinet {
+class ShimoCabinet extends TinyEmitter {
   static globals: { [key: string]: any }
 
   private fileGuid: string
@@ -102,7 +102,7 @@ class ShimoCabinet {
   private slide?: ShimoSlideCabinet
   private documentPro?: ShimoDocumentProCabinet
   private externals?: ExternalResource
-  private externalLoader?: ExternalLoader
+  private externalLoader: ExternalLoader
 
   constructor (options: {
     /**
@@ -147,6 +147,8 @@ class ShimoCabinet {
      */
     externalLoader?: ExternalLoader
   }) {
+    super()
+
     this._container = options.rootDom || options.container
     this.fileGuid = options.fileGuid
     this.entrypoint = typeof options.entrypoint === 'string' ? options.entrypoint : 'https://platform.shimo.im/entry'
@@ -159,6 +161,20 @@ class ShimoCabinet {
     assert(typeof this.fileGuid === 'string' && this.fileGuid.trim().length > 0, `"fileGuid" invalid: ${this.fileGuid}`)
     assert(typeof this.entrypoint === 'string' && this.entrypoint.trim().length > 0, `"token" invalid: ${this.entrypoint}`)
     /* tslint:enable */
+
+    if (typeof options.externalLoader !== 'function') {
+      this.externalLoader = async (src: string) => {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+          script.onload = () => resolve(src)
+          script.onerror = reject
+          script.src = src
+          document.head.appendChild(script)
+        })
+      }
+    } else {
+      this.externalLoader = options.externalLoader
+    }
   }
 
   get container () {
@@ -176,26 +192,13 @@ class ShimoCabinet {
     throw new Error(`container must be in DOM: ${this._container}`)
   }
 
+  // 仅加载 file 数据和 common、editor 组件
   async preload () {
+    const self = this
     const tasks: Promise<any>[] = []
 
     if (!this.file || !this.file.config) {
       tasks.push(this.fetchOptions())
-    }
-
-    let loader: ExternalLoader
-    if (typeof this.externalLoader !== 'function') {
-      loader = async (src: string) => {
-        await new Promise((resolve, reject) => {
-          const script = document.createElement('script')
-          script.onload = () => resolve(src)
-          script.onerror = reject
-          script.src = src
-          document.head.appendChild(script)
-        })
-      }
-    } else {
-      loader = this.externalLoader
     }
 
     if (this.externals) {
@@ -226,20 +229,6 @@ class ShimoCabinet {
           if (!loadedResources[editorKey]) {
             p = load(editorKey, v['editor'])
           }
-
-          p = p.then(() => {
-            forIn(v, (v: string, sub) => {
-              if (sub === 'editor') {
-                return
-              }
-              const key = `${main}.${sub}`
-              if (!loadedResources[key]) {
-                _tasks.push(load(key, v))
-              }
-            })
-
-            return Promise.all(_tasks)
-          })
         })
 
         return p
@@ -251,7 +240,7 @@ class ShimoCabinet {
     await Promise.all(tasks)
 
     async function load (key: string, src: string) {
-      return loader(src)
+      return self.externalLoader(src)
         .then(() => {
           loadedResources[key] = true
         })
@@ -307,14 +296,65 @@ class ShimoCabinet {
     this.file = file
   }
 
+  private preparePlugins (type: string): {
+    availablePlugins: string[],
+    getPlugin: (name: string) => Promise<any>
+  } {
+    let availablePlugins: string[] = []
+    let getPlugin = async (name: string) => sdk.plugins[name]
+    const sdk = this.getSDK(type)
+
+    if (this.externals && this.externals[type]) {
+      const item = this.externals[type]
+
+      if (type === 'sheet' || type === 'document') {
+        const pluginList = type === 'sheet' ? sheetPluginList : documentPluginList
+        const pluginListR = type === 'sheet' ? sheetPluginListReverse : documentPluginListReverse
+
+        availablePlugins = Object.keys(item).reduce((plugins, key: string) => {
+          if (pluginList[key]) {
+            plugins.push(pluginList[key])
+          }
+          return plugins
+        }, [] as string[])
+
+        getPlugin = async (name: string) => {
+          const pn = pluginListR[name]
+          const key = `${type}.${pn}`
+          if (!loadedResources[key] && item[pn]) {
+            await this.externalLoader(item[pn])
+            loadedResources[key] = true
+            return sdk.plugins[name]
+          }
+          throw new Error(`Plugin ${name} is not defined in externals.`)
+        }
+
+        return { availablePlugins, getPlugin }
+      } else {
+        throw new Error(`External resource mode is not supported for: ${type}`)
+      }
+    }
+
+    return {
+      availablePlugins: sdk.plugins == null ? [] : Object.keys(sdk.plugins).reduce((plugins, key: string) => {
+        if (typeof sdk.plugins[key] === 'function') {
+          plugins.push(key)
+        }
+        return plugins
+      }, [] as string[]),
+      getPlugin
+    }
+  }
+
   private renderSheet () {
     const sdkSheet = this.getSDK('sheet')
-    const availablePlugins = sdkSheet.plugins == null ? [] : Object.keys(sdkSheet.plugins).reduce((plugins, key: string) => {
-      if (typeof sdkSheet.plugins[key] === 'function') {
-        plugins.push(key)
-      }
-      return plugins
-    }, [] as string[])
+    const { availablePlugins, getPlugin } = this.preparePlugins('sheet')
+
+    const _availablePlugins: Set<string> = new Set(availablePlugins)
+
+    if (this.getSDK('common').Collaboration) {
+      _availablePlugins.add('Collaboration')
+    }
 
     const shimoSheetCabinet = new ShimoSheetCabinet({
       element: this.container,
@@ -325,7 +365,9 @@ class ShimoCabinet {
       token: this.token,
       file: this.file,
       editorOptions: this.editorOptions as ShimoSDK.Sheet.EditorOptions,
-      availablePlugins
+      availablePlugins: Array.from(_availablePlugins),
+      getPlugin,
+      onError: err => this.emit('error', err)
     })
 
     this.sheet = shimoSheetCabinet
@@ -355,21 +397,14 @@ class ShimoCabinet {
 
     const sdkDocument = this.getSDK('document')
 
-    const _availablePlugins: Set<string> = sdkDocument.plugins == null ?
-      new Set() :
-      Object.keys(sdkDocument.plugins).reduce((plugins, key: string) => {
-        if (typeof sdkDocument.plugins[key] === 'function') {
-          plugins.add(key)
-        }
-        return plugins
-      }, new Set()) as Set<string>
+    const { availablePlugins, getPlugin } = this.preparePlugins('document')
+
+    const _availablePlugins: Set<string> = new Set(availablePlugins)
     _availablePlugins.add('Toolbar')
 
     if (this.getSDK('common').Collaboration) {
       _availablePlugins.add('Collaboration')
     }
-
-    const availablePlugins = Array.from(_availablePlugins)
 
     const shimoDocumentCabinet = new ShimoDocumentCabinet({
       element: this.container,
@@ -379,10 +414,12 @@ class ShimoCabinet {
       entrypoint: this.entrypoint,
       token: this.token,
       file: this.file,
-      editorOptions: Object.assign(this.editorOptions, {
+      editorOptions: assign(this.editorOptions, {
         id: this.user.id
       }) as ShimoSDK.Document.EditorOptions,
-      availablePlugins
+      availablePlugins: Array.from(_availablePlugins),
+      getPlugin,
+      onError: err => this.emit('error', err)
     })
 
     this.document = shimoDocumentCabinet
@@ -397,7 +434,7 @@ class ShimoCabinet {
     this.document = undefined
   }
 
-  private renderSlide () {
+  private async renderSlide () {
     const cabinet = this.slide = new ShimoSlideCabinet({
       element: this.container,
       sdkSlide: this.getSDK('slide'),

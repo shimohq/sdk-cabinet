@@ -1,0 +1,76 @@
+export const sheetPluginInitOrders = {
+  highest: ['ConditionalFormat', 'DataValidation', 'FilterViewport', 'Lock', 'Toolbar', 'MobileSheetTab', 'Collaboration', 'Collaborators'],
+  normal: ['Chart', 'Comment', 'ContextMenu', 'Fill', 'FormulaSidebar', 'Shortcut', 'BasicPlugins', 'PivotTable', 'Print', 'HistorySidebarSkeleton', 'MobileToolbar', 'MobileContextmenu']
+}
+
+export const sheetPluginList = {
+  basicPlugins: 'BasicPlugins',
+  chart: 'Chart',
+  collaborators: 'Collaborators',
+  comment: 'Comment',
+  conditionalFormat: 'ConditionalFormat',
+  dataValidation: 'DataValidation',
+  fill: 'Fill',
+  filterViewport: 'FilterViewPort',
+  form: 'Form',
+  formulaSidebar: 'FormulaSidebar',
+  historySidebar: 'HistorySidebarSkeleton',
+  lock: 'Lock',
+  mobileContextmenu: 'MobileContextmenu',
+  mobileToolbar: 'MobileToolbar',
+  pivotTable: 'PivotTable',
+  print: 'Print',
+  shortcut: 'Shortcut',
+  toolbar: 'Toolbar'
+}
+
+export const sheetPluginListReverse = {
+  BasicPlugins: 'basicPlugins',
+  Chart: 'chart',
+  Collaborators: 'collaborators',
+  Comment: 'comment',
+  ConditionalFormat: 'conditionalFormat',
+  DataValidation: 'dataValidation',
+  Fill: 'fill',
+  FilterViewPort: 'filterViewport',
+  Form: 'form',
+  FormulaSidebar: 'formulaSidebar',
+  HistorySidebarSkeleton: 'historySidebar',
+  Lock: 'lock',
+  MobileContextmenu: 'mobileContextmenu',
+  MobileToolbar: 'mobileToolbar',
+  PivotTable: 'pivotTable',
+  Print: 'print',
+  Shortcut: 'shortcut',
+  Toolbar: 'toolbar'
+}
+
+export const documentPluginList = {
+  collaborator: 'Collaborator',
+  comment: 'Comment',
+  'demo-screen': 'DemoScreen',
+  gallery: 'Gallery',
+  history: 'History',
+  mention: 'Mention',
+  mobile: 'Mobile',
+  revision: 'Revision',
+  'table-of-content': 'TableOfContent',
+  uploader: 'Uploader',
+  toolbar: 'Toolbar'
+}
+
+export const documentPluginListReverse = {
+  Collaborator: 'collaborator',
+  Comment: 'comment',
+  DemoScreen: 'demo-screen',
+  Gallery: 'gallery',
+  History: 'history',
+  Mention: 'mention',
+  Mobile: 'mobile',
+  Revision: 'revision',
+  TableOfContent: 'table-of-content',
+  Uploader: 'uploader',
+  Toolbar: 'toolbar'
+}
+
+export const loadedResources: { [key: string]: boolean } = {}
