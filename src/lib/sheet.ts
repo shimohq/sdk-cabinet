@@ -158,7 +158,13 @@ class ShimoSheetCabinet extends CabinetBase {
       })
       .then(() => Promise.all(sheetPluginInitOrders.normal.map(p => this.initPlugin(editor, p))))
       .catch(err => this.onError(err))
-      .then(() => this.afterPluginReady = [])
+      .then(() => {
+        for (const cb of this.afterPluginReady) {
+          cb.call(this)
+        }
+
+        this.afterPluginReady = []
+      })
       .catch(err => this.onError(err))
 
     editor.on(this.sdkSheet.sheets.Events, (msg) => {
