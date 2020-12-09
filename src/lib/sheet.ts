@@ -16,6 +16,11 @@ const STATUS = {
   SERVER_CHANGE_APPLIED: 'serverChangeApplied'
 }
 
+const pluginInitOrders = {
+  highest: ['ConditionalFormat', 'DataValidation', 'FilterViewport', 'Lock', 'Toolbar'],
+  normal: ['Chart', 'Collaboration', 'Collaborators', 'Comment', 'ContextMenu', 'Fill', 'FormulaSidebar', 'Shortcut', 'BasicPlugins', 'PivotTable', 'Print']
+}
+
 class ShimoSheetCabinet extends CabinetBase {
   public editor: ShimoSDK.Sheet.Editor
   public plugins: {
@@ -172,6 +177,33 @@ class ShimoSheetCabinet extends CabinetBase {
 
   public initEditor (options: ShimoSDK.Sheet.EditorOptions): ShimoSDK.Sheet.Editor {
     return new this.sdkSheet.Editor(options)
+  }
+
+  /**
+   * 初始化所有启用的插件
+   */
+  protected initPlugins (editor: ShimoSDK.Sheet.Editor | ShimoSDK.Document.Editor) {
+    const self = this
+
+    for (const name of pluginInitOrders.highest) {
+      init(name)
+    }
+
+    setTimeout(() => {
+      for (const name of pluginInitOrders.normal) {
+        init(name)
+      }
+    })
+
+    function init (name: string) {
+      if (name in self.pluginOptions === false) {
+        return
+      }
+      const method = `init${name}`
+      if (typeof self[method] === 'function') {
+        self[method](editor)
+      }
+    }
   }
 
   public initBasicPlugins (editor: ShimoSDK.Sheet.Editor): void {

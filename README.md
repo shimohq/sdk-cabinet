@@ -204,6 +204,8 @@ ReactDOM.render(<Editor />, document.getElementById('app'))
 | token | string | 必选 | 石墨 SDK 后端鉴权 access token |
 | fileGuid | string | 必选 | 石墨文件的 GUID |
 | editorOptions | object | 可选 | 编辑器基本配置 |
+| externals | object | 可选 | 石墨 JS SDK 文件的远程地址，用于优化加载性能 |
+| externalLoader | function | 可选 ｜ 自定义 JS SDK 加载器 |
 
 ##### 新文档 (`document`) 配置
 
@@ -271,6 +273,66 @@ ReactDOM.render(<Editor />, document.getElementById('app'))
 ##### 幻灯片 (`slide`) 配置
 
 幻灯片暂没有定制化配置。
+
+##### externals 和 externalLoader
+
+由于打包后的文件较大，如 `dist/sheet.min.js`，且文档数据接口请求也是在 JS 加载完后进行，会影响整体性能。
+
+因此提供 `externals` 来缓解此问题。
+
+```js
+import ShimoCabinet from 'shimo-sdk-cabinet/dist/cabinet.min.js'
+
+const cabinet = new ShimoCabinet({
+  ...options,
+  externals: {
+    common: {
+      common: 'https://cdn.com/static/sdk-cabinet/vendor/shimo-jssdk/shimo.sdk.common.min.js',
+      collaboration: 'https://cdn.com/static/sdk-cabinet/vendor/shimo-jssdk/shimo.sdk.common.collaboration.min.js'
+    },
+    sheet: {
+      editor: 'https://cdn.com/static/sdk-cabinet/vendor/shimo-jssdk/shimo.sdk.sheet.editor.min.js',
+      basicPlugins: '/static/sdk-cabinet/vendor/shimo-jssdk/shimo.sdk.sheet.plugins.basicPlugins.min.js',
+      chart: 'https://cdn.com/static/sdk-cabinet/vendor/shimo-jssdk/shimo.sdk.sheet.plugins.chart.min.js',
+      ...
+    }
+  }
+})
+cabinet.render()
+```
+
+注意 `import ShimoCabinet from 'shimo-sdk-cabinet/dist/cabinet.min.js'` 引入的是 `cabinet.min.js`，此文件不包含 `vendor/` 下的 JS SDK 文件，因此体积很小。
+
+下面例子定义了 `common` 和 `sheet` JS SDK 的地址：
+
+```js
+externals: {
+  common: {
+    common: 'https://cdn.com/static/sdk-cabinet/vendor/shimo-jssdk/shimo.sdk.common.min.js',
+    collaboration: 'https://cdn.com/static/sdk-cabinet/vendor/shimo-jssdk/shimo.sdk.common.collaboration.min.js'
+  },
+  sheet: {
+    editor: 'https://cdn.com/static/sdk-cabinet/vendor/shimo-jssdk/shimo.sdk.sheet.editor.min.js',
+    basicPlugins: '/static/sdk-cabinet/vendor/shimo-jssdk/shimo.sdk.sheet.plugins.basicPlugins.min.js',
+    chart: 'https://cdn.com/static/sdk-cabinet/vendor/shimo-jssdk/shimo.sdk.sheet.plugins.chart.min.js',
+    ...
+  }
+}
+```
+
+`common` 属于必须加载的组件，其他组件则按需选择，key 为 `shimo.sdk.<套件名>.<组件名>.min.js` 或 `shimo.sdk.<套件名>.plugins.<组件名>.min.js` 中的组件名。
+
+同时提供一个方法：`cabinet.preload()`，此方法在调用的时候，会同步执行：
+
+- 通过 Ajax 请求指定 fileGuid 文档的数据和配置
+- 通过 `<script src="...">` 的方式加载 `externals`
+
+`render()` 内部也会调用 `preload()`，`preload()` 会根据内部缓存结果是否再次进行请求。
+
+这么做的好处：
+
+- `cabinet.min.js` 更新时，其他没有更新的 JS SDK 组件可有效利用 CDN 缓存，减少用户下载量
+- Ajax 请求和 `script` 请求和并行加载
 
 #### 移动端适配
 

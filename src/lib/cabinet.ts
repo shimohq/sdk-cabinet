@@ -2,6 +2,7 @@ import 'promise-polyfill/src/polyfill'
 import assign from 'object-assign'
 import get from 'lodash.get'
 import fetch from 'unfetch'
+import forIn from 'lodash.forin'
 
 import ShimoDocumentCabinet from './document'
 import ShimoSheetCabinet from './sheet'
@@ -22,11 +23,75 @@ if (window.__RUNTIME_ENV__ == null) {
 }
 /* tslint:enable */
 
+/**
+ * 石墨 JS SDK 文件的远程地址，用于异步加载，加速编辑器初始化流程使用
+ */
+interface ExternalResource {
+  common: {
+    common: string
+    collaboration?: string
+  }
+
+  document?: {
+    editor: string
+    collaborator?: string
+    comment?: string
+    'demo-screen'?: string
+    gallery?: string
+    history?: string
+    mention?: string
+    mobile?: string
+    revision?: string
+    'table-of-content'?: string
+    uploader?: string
+  }
+
+  sheet?: {
+    editor: string
+    basicPlugins?: string
+    chart?: string
+    collaboration?: string
+    collaborators?: string
+    comment?: string
+    conditionalFormat?: string
+    dataValidation?: string
+    fill?: string
+    filterViewPort?: string
+    form?: string
+    formulaSidebar?: string
+    historySidebar?: string
+    lock?: string
+    mobileContextmenu?: string
+    mobileToolbar?: string
+    pivotTable?: string
+    print?: string
+    shortcut?: string
+    toolbar?: string
+  },
+
+  slide?: {
+    editor: string
+  },
+
+  'document-pro'?: {
+    editor: string
+    style: string
+  }
+}
+
+/**
+ * 石墨 JS SDK 文件的加载器，默认会使用 <script src="..."> 加载，如有特殊需要，可自行实现加载逻辑。
+ * 需要注意的是，当加载器调用完毕时，需确保 JS 文件已被解析执行完毕。
+ */
+type ExternalLoader = (src: string) => Promise<void>
+
+const loadedResources: { [key: string]: boolean } = {}
+
 class ShimoCabinet {
   static globals: { [key: string]: any }
 
   private fileGuid: string
-  private container: HTMLElement
+  private _container: HTMLElement | string
   private entrypoint: string
   private token: string
   private user: ShimoSDK.User
@@ -36,6 +101,8 @@ class ShimoCabinet {
   private document?: ShimoDocumentCabinet
   private slide?: ShimoSlideCabinet
   private documentPro?: ShimoDocumentProCabinet
+  private externals?: ExternalResource
+  private externalLoader?: ExternalLoader
 
   constructor (options: {
     /**
@@ -54,7 +121,7 @@ class ShimoCabinet {
     /**
      * 石墨编辑器的容器元素
      */
-    container: HTMLElement
+    container: HTMLElement | string
 
     /**
      * 石墨编辑器的容器元素
@@ -67,27 +134,136 @@ class ShimoCabinet {
      */
     editorOptions?: ShimoSDK.Document.EditorOptions | ShimoSDK.Sheet.EditorOptions
     fetchCollaborators: string
-    onSaveStatusChange: () => {}
+    onSaveStatusChange: () => {},
+
+    /**
+     * 石墨 JS SDK 文件的远程地址，用于异步加载，加速编辑器初始化流程使用
+     */
+    externals?: ExternalResource,
+
+    /**
+     * 石墨 JS SDK 文件的加载器，默认会使用 <script async> 加载，如有特殊需要，可自行实现加载逻辑。
+     * 需要注意的是，当加载器调用完毕时，需确保 JS 文件已被解析执行完毕。
+     */
+    externalLoader?: ExternalLoader
   }) {
-    const element = options.rootDom || options.container
+    this._container = options.rootDom || options.container
     this.fileGuid = options.fileGuid
     this.entrypoint = typeof options.entrypoint === 'string' ? options.entrypoint : 'https://platform.shimo.im/entry'
     this.token = options.token
     this.editorOptions = assign({}, options.editorOptions)
+    this.externals = options.externals
 
     /* tslint:disable:strict-type-predicates */
     assert(typeof this.token === 'string' && this.token.trim().length > 0, `"token" invalid: ${this.token}`)
     assert(typeof this.fileGuid === 'string' && this.fileGuid.trim().length > 0, `"fileGuid" invalid: ${this.fileGuid}`)
     assert(typeof this.entrypoint === 'string' && this.entrypoint.trim().length > 0, `"token" invalid: ${this.entrypoint}`)
-    assert(element instanceof HTMLElement, `"container" requires an HTMLElement, but saw: ${element}`)
     /* tslint:enable */
+  }
 
-    this.container = element
+  get container () {
+    if (typeof this._container === 'string') {
+      const elm = document.querySelector(this._container)
+      if (elm instanceof HTMLElement) {
+        this._container = elm
+      }
+    }
+
+    if (this._container instanceof HTMLElement) {
+      return this._container
+    }
+
+    throw new Error(`container must be in DOM: ${this._container}`)
+  }
+
+  async preload () {
+    const tasks: Promise<any>[] = []
+
+    if (!this.file || !this.file.config) {
+      tasks.push(this.fetchOptions())
+    }
+
+    let loader: ExternalLoader
+    if (typeof this.externalLoader !== 'function') {
+      loader = async (src: string) => {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+          script.onload = () => resolve(src)
+          script.onerror = reject
+          script.src = src
+          document.head.appendChild(script)
+        })
+      }
+    } else {
+      loader = this.externalLoader
+    }
+
+    if (this.externals) {
+      let _tasks: Promise<any>[] = []
+      let p: Promise<any> = Promise.resolve()
+
+      forIn(this.externals.common, (v: string, sub) => {
+        const key = `common.${sub}`
+        if (!loadedResources[key]) {
+          _tasks.push(load(key, v))
+        }
+      })
+
+      if (_tasks.length > 0) {
+        p = Promise.all(_tasks)
+        _tasks = []
+      }
+
+      p = p.then(() => {
+        let p: Promise<any> = Promise.resolve()
+
+        forIn(this.externals, (v, main) => {
+          if (main === 'common') {
+            return
+          }
+
+          const editorKey = `${main}.editor`
+          if (!loadedResources[editorKey]) {
+            p = load(editorKey, v['editor'])
+          }
+
+          p = p.then(() => {
+            forIn(v, (v: string, sub) => {
+              if (sub === 'editor') {
+                return
+              }
+              const key = `${main}.${sub}`
+              if (!loadedResources[key]) {
+                _tasks.push(load(key, v))
+              }
+            })
+
+            return Promise.all(_tasks)
+          })
+        })
+
+        return p
+      })
+
+      tasks.push(p)
+    }
+
+    await Promise.all(tasks)
+
+    async function load (key: string, src: string) {
+      return loader(src)
+        .then(() => {
+          loadedResources[key] = true
+        })
+        .catch(err => {
+          throw new Error(`failed to load ${key}: ${err.message}`)
+        })
+    }
   }
 
   async render (renderOptions?: any): Promise<ShimoDocumentCabinet | ShimoSheetCabinet> {
     assert(document.body, 'You cannot render editor before <body>')
-    await this.fetchOptions()
+    await this.preload()
     const type = this.getRenderType(this.file.type)
     return this[`render${type}`](renderOptions)
   }
@@ -113,6 +289,10 @@ class ShimoCabinet {
   }
 
   private async fetchOptions () {
+    if (this.file && this.file.config) {
+      return
+    }
+
     const res = await fetch(`${this.entrypoint}/files/${this.fileGuid}?withConfig=true`, {
       headers: {
         'content-type': 'application/json',
@@ -275,5 +455,7 @@ export default ShimoCabinet
 
 export {
   ShimoDocumentCabinet,
-  ShimoSheetCabinet
+  ShimoSheetCabinet,
+  ExternalResource,
+  ExternalLoader as scriptLoader
 }
