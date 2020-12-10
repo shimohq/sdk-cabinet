@@ -140,11 +140,11 @@ class ShimoSheetCabinet extends CabinetBase {
       }
     ))
 
-    Promise
-      .all(sheetPluginInitOrders.highest.map(p => this.initPlugin(editor, p)))
-      .then(() => {
-        editor.spread.gcSpread._doResize()
+    await Promise.all(sheetPluginInitOrders.highest.map(p => this.initPlugin(editor, p)))
+    editor.spread.gcSpread._doResize()
 
+    Promise.resolve()
+      .then(() => {
         for (const cb of this.afterPluginReady) {
           cb.call(this)
         }
