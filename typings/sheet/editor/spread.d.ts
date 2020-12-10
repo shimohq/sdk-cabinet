@@ -14,5 +14,8 @@ export default class Spread {
   appendSheet (): void
   removeSheet (id: string): void
   renameSheet (id: string, name: string): Promise<void>
+  gcSpread: {
+    _doResize (): void
+  }
 }
 export {}
