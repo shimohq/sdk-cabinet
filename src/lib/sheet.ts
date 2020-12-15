@@ -39,6 +39,7 @@ class ShimoSheetCabinet extends CabinetBase {
     basic?: ShimoSDK.Sheet.BasicPlugins
     dataValidation?: ShimoSDK.Sheet.DataValidation
   }
+  public getPlugin: (name: string) => Promise<any>
 
   private sdkSheet: any
   private sdkCommon: any
@@ -50,7 +51,6 @@ class ShimoSheetCabinet extends CabinetBase {
   private collaboration: ShimoSDK.Common.Collaboration
   private afterPluginReady: (() => void)[]
   private onError: (error: any) => void
-  private getPlugin: (name: string) => Promise<any>
   protected pluginOptions: ShimoSDK.Sheet.Plugins
 
   constructor (options: {

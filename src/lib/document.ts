@@ -44,6 +44,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     revision?: ShimoSDK.Document.Revision
     mobile?: ShimoSDK.Document.Mobile
   }
+  public getPlugin: (name: string) => Promise<any>
 
   private sdkCommon: any
   private sdkDocument: any
@@ -55,7 +56,6 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   private collaboration: ShimoSDK.Common.Collaboration
   private _commentShowCount: number
   private onError: (error: any) => void
-  private getPlugin: (name: string) => Promise<any>
   protected pluginOptions: ShimoSDK.Document.Plugins
 
   constructor (options: {
