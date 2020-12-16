@@ -1,4 +1,5 @@
-import CabinetBase from './base'
+import { ReadyState, events } from './constants'
+import CabinetBase, { emitter } from './base'
 
 class ShimoDocumentProCabinet extends CabinetBase {
   public editor: ShimoSDK.DocumentPro.Editor
@@ -11,15 +12,21 @@ class ShimoDocumentProCabinet extends CabinetBase {
     sdkDocumentPro: any
     user: ShimoSDK.User
     file: ShimoSDK.File
+    emitter?: emitter
   }) {
     super(options.element)
     this.sdkSlide = options.sdkDocumentPro
     this.user = options.user
     this.file = options.file
+
+    if (typeof options.emitter === 'function') {
+      this.emitter = options.emitter
+    }
   }
 
   public async render () {
     this.initEditor()
+    this.emitter('readyState', { [events.readyState]: ReadyState.allReady })
     return
   }
 
@@ -39,7 +46,9 @@ class ShimoDocumentProCabinet extends CabinetBase {
       window.shimo[key] = this.file.config[key]
     })
 
-    return this.sdkSlide({ container: this.element })
+    const editor = this.sdkSlide({ container: this.element })
+    this.emitter(events.readyState, { [events.readyState]: ReadyState.editorReady })
+    return editor
   }
 }
 

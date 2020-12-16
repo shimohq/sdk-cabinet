@@ -1,9 +1,9 @@
 import get from 'lodash.get'
 import assign from 'object-assign'
 
-import CabinetBase from './base'
+import CabinetBase, { emitter } from './base'
 import './document.css'
-import { spawn } from 'child_process'
+import { events, ReadyState } from './constants'
 
 const historyContainerTemplate = `
   <div class="sm-history-sidebar">
@@ -53,11 +53,11 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   private file: ShimoSDK.File
   private entrypoint: string
   private token: string
-  private collaboration: ShimoSDK.Common.Collaboration
   private _commentShowCount: number
   private onError: (error: any) => void
   private async?: boolean
   protected pluginOptions: ShimoSDK.Document.Plugins
+  protected emitter: emitter
 
   constructor (options: {
     element: HTMLElement
@@ -72,6 +72,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     onError?: (error: any) => void
     getPlugin: (name: string) => Promise<any>
     async?: boolean
+    emitter?: emitter
   }) {
     super(options.element)
     this.sdkCommon = options.sdkCommon
@@ -102,6 +103,10 @@ export default class ShimoDocumentCabinet extends CabinetBase {
       this.onError = options.onError
     } else {
       this.onError = err => { throw err }
+    }
+
+    if (typeof options.emitter === 'function') {
+      this.emitter = options.emitter
     }
   }
 
@@ -147,10 +152,18 @@ export default class ShimoDocumentCabinet extends CabinetBase {
       }
     )
     editor.setContent(this.file.content)
+    this.emitter('error', 'holyshit')
+    this.emitter('readyState', 'yeah')
+    this.emitter(events.readyState, { [events.readyState]: ReadyState.editorReady })
 
     const p = Promise
       .all(this.availablePlugins.map(p => this.initPlugin(editor, p)))
       .then(() => this.initCollaboration(editor))
+      .catch(err => this.onError(err))
+      .then(() => {
+        this.emitter(events.readyState, { [events.readyState]: ReadyState.pluginReady })
+        this.emitter(events.readyState, { [events.readyState]: ReadyState.allReady })
+      })
       .catch(err => this.onError(err))
     if (!this.async) {
       await p
@@ -380,8 +393,6 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     if (collaborators) {
       collaborators.render(collaboration)
     }
-
-    this.collaboration = collaboration
   }
 
   public initComment (editor: ShimoSDK.Document.Editor): void {

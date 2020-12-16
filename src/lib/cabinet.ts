@@ -10,7 +10,7 @@ import ShimoSheetCabinet from './sheet'
 import ShimoSlideCabinet from './slide'
 import ShimoDocumentProCabinet from './document-pro'
 import assert from '../util/assert'
-import { sheetPluginList, sheetPluginListReverse, loadedResources, documentPluginList, documentPluginListReverse } from './constants'
+import { sheetPluginList, sheetPluginListReverse, loadedResources, documentPluginList, documentPluginListReverse, ReadyState } from './constants'
 
 /* tslint:disable:strict-type-predicates */
 // 设置全局命名空间
@@ -89,6 +89,7 @@ type ExternalLoader = (src: string) => Promise<void>
 
 class ShimoCabinet extends TinyEmitter {
   static globals: { [key: string]: any }
+  static ReadyState = ReadyState
 
   private fileGuid: string
   private _container: HTMLElement | string
@@ -100,7 +101,6 @@ class ShimoCabinet extends TinyEmitter {
   private sheet?: ShimoSheetCabinet
   private document?: ShimoDocumentCabinet
   private slide?: ShimoSlideCabinet
-  private documentPro?: ShimoDocumentProCabinet
   private externals?: ExternalResource
   private externalLoader: ExternalLoader
 
@@ -354,6 +354,7 @@ class ShimoCabinet extends TinyEmitter {
     }
   }
 
+  // @ts-ignore
   private renderSheet () {
     const sdkSheet = this.getSDK('sheet')
     const { availablePlugins, getPlugin, asyncMode } = this.preparePlugins('sheet')
@@ -376,7 +377,8 @@ class ShimoCabinet extends TinyEmitter {
       availablePlugins: Array.from(_availablePlugins),
       getPlugin,
       onError: err => this.emit('error', err),
-      async: asyncMode
+      async: asyncMode,
+      emitter: (event: string, ...args: any[]) => this.emit(event, ...args)
     })
 
     this.sheet = shimoSheetCabinet
@@ -384,6 +386,7 @@ class ShimoCabinet extends TinyEmitter {
     return shimoSheetCabinet.render()
   }
 
+  // @ts-ignore
   private destroySheet () {
     if (!this.sheet) {
       throw new Error('shimoSheetCabinet is not rendered')
@@ -392,6 +395,7 @@ class ShimoCabinet extends TinyEmitter {
     this.sheet = undefined
   }
 
+  // @ts-ignore
   private renderDocument () {
     this.editorOptions.plugins = Object.assign(
       {
@@ -429,13 +433,15 @@ class ShimoCabinet extends TinyEmitter {
       availablePlugins: Array.from(_availablePlugins),
       getPlugin,
       onError: err => this.emit('error', err),
-      async: asyncMode
+      async: asyncMode,
+      emitter: (event: string, ...args: any[]) => this.emit(event, ...args)
     })
 
     this.document = shimoDocumentCabinet
     return shimoDocumentCabinet.render()
   }
 
+  // @ts-ignore
   private destroyDocument () {
     if (!this.document) {
       throw new Error('shimoDocumentCabinet is not rendered')
@@ -444,6 +450,7 @@ class ShimoCabinet extends TinyEmitter {
     this.document = undefined
   }
 
+  // @ts-ignore
   private async renderSlide () {
     const cabinet = this.slide = new ShimoSlideCabinet({
       element: this.container,
@@ -452,12 +459,14 @@ class ShimoCabinet extends TinyEmitter {
       user: this.user,
       entrypoint: this.entrypoint,
       token: this.token,
-      file: this.file
+      file: this.file,
+      emitter: (event: string, ...args: any[]) => this.emit(event, ...args)
     })
 
     return cabinet.render()
   }
 
+  // @ts-ignore
   private destroySlide () {
     if (!this.slide) {
       throw new Error('ShideSlideCabinet is not rendered')
@@ -466,14 +475,15 @@ class ShimoCabinet extends TinyEmitter {
     this.slide = undefined
   }
 
+  // @ts-ignore
   private renderDocumentPro () {
     const cabinet = new ShimoDocumentProCabinet({
       element: this.container,
       sdkDocumentPro: this.getSDK('documentPro'),
       user: this.user,
-      file: this.file
+      file: this.file,
+      emitter: (event: string, ...args: any[]) => this.emit(event, ...args)
     })
-    this.documentPro = cabinet
     return cabinet.render()
   }
 
@@ -504,5 +514,6 @@ export {
   ShimoDocumentCabinet,
   ShimoSheetCabinet,
   ExternalResource,
-  ExternalLoader as scriptLoader
+  ExternalLoader as scriptLoader,
+  ReadyState
 }

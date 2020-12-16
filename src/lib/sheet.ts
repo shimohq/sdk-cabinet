@@ -1,9 +1,9 @@
 import assign from 'object-assign'
 
-import CabinetBase from './base'
+import CabinetBase, { emitter } from './base'
 import './sheet.css'
 import ToolbarEvents from '../../typings/sheet/plugins/toolbar/events'
-import { sheetPluginInitOrders, loadedResources } from './constants'
+import { sheetPluginInitOrders, events, ReadyState } from './constants'
 
 const STATUS = {
   OFFLINE: 'offline',
@@ -53,6 +53,7 @@ class ShimoSheetCabinet extends CabinetBase {
   private onError: (error: any) => void
   private async?: boolean
   protected pluginOptions: ShimoSDK.Sheet.Plugins
+  protected emitter: emitter
 
   constructor (options: {
     element: HTMLElement
@@ -67,6 +68,7 @@ class ShimoSheetCabinet extends CabinetBase {
     onError?: (error: any) => void
     getPlugin: (name: string) => Promise<any>
     async?: boolean
+    emitter?: emitter
   }) {
     super(options.element)
     this.sdkSheet = options.sdkSheet
@@ -123,6 +125,10 @@ class ShimoSheetCabinet extends CabinetBase {
         undefined
     )
     this.afterPluginReady = []
+
+    if (typeof options.emitter === 'function') {
+      this.emitter = options.emitter
+    }
   }
 
   public async render (options?: ShimoSDK.Sheet.EditorRenderOptions) {
@@ -142,6 +148,7 @@ class ShimoSheetCabinet extends CabinetBase {
         container: editorElm
       }
     ))
+    this.emitter(events.readyState, { [events.readyState]: ReadyState.editorReady })
 
     await Promise.all(sheetPluginInitOrders.highest.map(p => this.initPlugin(editor, p)))
     editor.spread.gcSpread._doResize()
@@ -167,6 +174,8 @@ class ShimoSheetCabinet extends CabinetBase {
         }
 
         this.afterPluginReady = []
+        this.emitter(events.readyState, { [events.readyState]: ReadyState.pluginReady })
+        this.emitter(events.readyState, { [events.readyState]: ReadyState.allReady })
       })
       .catch(err => this.onError(err))
     if (!this.async) {
@@ -702,6 +711,7 @@ class ShimoSheetCabinet extends CabinetBase {
     this.plugins.dataValidation = new this.sdkSheet.plugins.DataValidation({ editor })
   }
 
+  // @ts-ignore
   private updateEditorOptions (options?: {
     commentable: boolean,
     editable: boolean

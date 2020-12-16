@@ -1,16 +1,22 @@
 import isObject from 'lodash.isobject'
 import forIn from 'lodash.forin'
 
+export type emitter = (event: string, ...args: any[]) => void
+
 export default class CabinetBase {
   public plugins: { [key: string]: any }
   protected element: HTMLElement
   protected availablePlugins: string[]
   protected pluginOptions: ShimoSDK.Document.Plugins | ShimoSDK.Sheet.Plugins
+  protected emitter: emitter
 
   constructor (element: HTMLElement) {
     this.element = element
     this.availablePlugins = []
     this.plugins = {}
+
+    // tslint:disable-next-line no-empty
+    this.emitter = (event: string, ...args: any[]) => {}
   }
 
   /**

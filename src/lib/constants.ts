@@ -74,3 +74,13 @@ export const documentPluginListReverse = {
 }
 
 export const loadedResources: { [key: string]: boolean } = {}
+
+export enum ReadyState {
+  editorReady,
+  pluginReady,
+  allReady
+}
+
+export enum events {
+  readyState = 'readyState'
+}

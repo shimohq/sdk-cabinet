@@ -1,4 +1,5 @@
-import CabinetBase from './base'
+import CabinetBase, { emitter } from './base'
+import { events, ReadyState } from './constants'
 
 class ShimoSlideCabinet extends CabinetBase {
   public editor: ShimoSDK.Slide.Editor
@@ -9,6 +10,7 @@ class ShimoSlideCabinet extends CabinetBase {
   private token: string
   private file: ShimoSDK.File
   private editorOptions: ShimoSDK.Slide.EditorOptions
+  protected emitter: emitter
 
   constructor (options: {
     element: HTMLElement
@@ -18,6 +20,7 @@ class ShimoSlideCabinet extends CabinetBase {
     entrypoint: string
     token: string
     file: ShimoSDK.File
+    emitter?: emitter
   }) {
     super(options.element)
     this.sdkSlide = options.sdkSlide
@@ -37,10 +40,15 @@ class ShimoSlideCabinet extends CabinetBase {
       editable: file.permissions.editable,
       commentable: file.permissions.commentable
     }
+
+    if (typeof options.emitter === 'function') {
+      this.emitter = options.emitter
+    }
   }
 
   public async render () {
     const editor = this.editor = this.initEditor()
+    this.emitter(events.readyState, { [events.readyState]: ReadyState.editorReady })
 
     const options = {
       editable: this.editorOptions.editable,
@@ -80,7 +88,8 @@ class ShimoSlideCabinet extends CabinetBase {
     })
     collaboration.start()
     this.plugins.collaboration = collaboration
-
+    this.emitter(events.readyState, { [events.readyState]: ReadyState.pluginReady })
+    this.emitter(events.readyState, { [events.readyState]: ReadyState.allReady })
     return editor
   }
 

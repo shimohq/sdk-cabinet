@@ -1,4 +1,4 @@
-import ShimoCabinet from './lib/cabinet'
+import ShimoCabinet, { ReadyState } from './lib/cabinet'
 
 /* tslint:disable-next-line:strict-type-predicates */
 if (window.__env == null) {
@@ -18,6 +18,7 @@ ShimoCabinet.globals = {
 }
 
 export default ShimoCabinet
+export { ReadyState }
 
 module.exports = ShimoCabinet
 module.exports.default = ShimoCabinet

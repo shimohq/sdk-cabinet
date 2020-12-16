@@ -1,4 +1,4 @@
-import ShimoCabinet from './lib/cabinet'
+import ShimoCabinet, { ReadyState } from './lib/cabinet'
 
 import '../vendor/shimo-jssdk/shimo.sdk.common.min.js'
 import '../vendor/shimo-jssdk/shimo.sdk.common.collaboration.min.js'
@@ -31,6 +31,7 @@ ShimoCabinet.globals = {
 }
 
 export default ShimoCabinet
+export { ReadyState }
 
 module.exports = ShimoCabinet
 module.exports.default = ShimoCabinet

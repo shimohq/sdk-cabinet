@@ -345,6 +345,8 @@ cabinet('error', errorHandler)
 目前支持的事件：
 
 - `error`：任何在运行中，无法正常抛出的错误都会用此事件抛出
+- `readyState`：状态变更时会触发事件，可用事件列表在 `ShimoCabinet.ReadyState` 中可查
+
 #### 移动端适配
 
  - 移动端目前尽量保证浏览效果，编辑功能和桌面端有差距
