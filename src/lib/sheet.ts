@@ -51,6 +51,7 @@ class ShimoSheetCabinet extends CabinetBase {
   private collaboration: ShimoSDK.Common.Collaboration
   private afterPluginReady: (() => void)[]
   private onError: (error: any) => void
+  private async?: boolean
   protected pluginOptions: ShimoSDK.Sheet.Plugins
 
   constructor (options: {
@@ -65,6 +66,7 @@ class ShimoSheetCabinet extends CabinetBase {
     availablePlugins: string[]
     onError?: (error: any) => void
     getPlugin: (name: string) => Promise<any>
+    async?: boolean
   }) {
     super(options.element)
     this.sdkSheet = options.sdkSheet
@@ -74,6 +76,7 @@ class ShimoSheetCabinet extends CabinetBase {
     this.token = options.token
     this.plugins = {}
     this.getPlugin = options.getPlugin
+    this.async = options.async
 
     if (typeof options.onError === 'function') {
       this.onError = options.onError
@@ -143,7 +146,7 @@ class ShimoSheetCabinet extends CabinetBase {
     await Promise.all(sheetPluginInitOrders.highest.map(p => this.initPlugin(editor, p)))
     editor.spread.gcSpread._doResize()
 
-    Promise.resolve()
+    const p = Promise.resolve()
       .then(() => {
         for (const cb of this.afterPluginReady) {
           cb.call(this)
@@ -166,6 +169,9 @@ class ShimoSheetCabinet extends CabinetBase {
         this.afterPluginReady = []
       })
       .catch(err => this.onError(err))
+    if (!this.async) {
+      await p
+    }
 
     editor.on(this.sdkSheet.sheets.Events, (msg) => {
       this.sdkSheet.sheets.utils.confirm({

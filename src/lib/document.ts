@@ -56,6 +56,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   private collaboration: ShimoSDK.Common.Collaboration
   private _commentShowCount: number
   private onError: (error: any) => void
+  private async?: boolean
   protected pluginOptions: ShimoSDK.Document.Plugins
 
   constructor (options: {
@@ -70,6 +71,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     availablePlugins: string[]
     onError?: (error: any) => void
     getPlugin: (name: string) => Promise<any>
+    async?: boolean
   }) {
     super(options.element)
     this.sdkCommon = options.sdkCommon
@@ -94,6 +96,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     )
     this._commentShowCount = 0
     this.getPlugin = options.getPlugin
+    this.async = options.async
 
     if (typeof options.onError === 'function') {
       this.onError = options.onError
@@ -102,7 +105,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     }
   }
 
-  public render () {
+  public async render () {
     const editor = this.initEditor()
     let localeConfig: {
       fetchLocaleSync?: string;
@@ -145,10 +148,13 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     )
     editor.setContent(this.file.content)
 
-    Promise
+    const p = Promise
       .all(this.availablePlugins.map(p => this.initPlugin(editor, p)))
       .then(() => this.initCollaboration(editor))
       .catch(err => this.onError(err))
+    if (!this.async) {
+      await p
+    }
 
     if (this.editorOptions.isMobile) {
       document.body.classList.add('in-mobile')

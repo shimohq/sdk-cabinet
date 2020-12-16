@@ -299,10 +299,12 @@ class ShimoCabinet extends TinyEmitter {
   private preparePlugins (type: string): {
     availablePlugins: string[],
     getPlugin: (name: string) => Promise<any>
+    asyncMode: boolean
   } {
     let availablePlugins: string[] = []
     let getPlugin = async (name: string) => sdk.plugins[name]
     const sdk = this.getSDK(type)
+    let asyncMode = false
 
     if (this.externals && this.externals[type]) {
       const item = this.externals[type]
@@ -310,6 +312,7 @@ class ShimoCabinet extends TinyEmitter {
       if (type === 'sheet' || type === 'document') {
         const pluginList = type === 'sheet' ? sheetPluginList : documentPluginList
         const pluginListR = type === 'sheet' ? sheetPluginListReverse : documentPluginListReverse
+        asyncMode = true
 
         availablePlugins = Object.keys(item).reduce((plugins, key: string) => {
           if (pluginList[key]) {
@@ -333,7 +336,7 @@ class ShimoCabinet extends TinyEmitter {
           throw new Error(`Plugin ${name} is not defined in externals.`)
         }
 
-        return { availablePlugins, getPlugin }
+        return { availablePlugins, getPlugin, asyncMode }
       } else {
         throw new Error(`External resource mode is not supported for: ${type}`)
       }
@@ -346,13 +349,14 @@ class ShimoCabinet extends TinyEmitter {
         }
         return plugins
       }, [] as string[]),
-      getPlugin
+      getPlugin,
+      asyncMode
     }
   }
 
   private renderSheet () {
     const sdkSheet = this.getSDK('sheet')
-    const { availablePlugins, getPlugin } = this.preparePlugins('sheet')
+    const { availablePlugins, getPlugin, asyncMode } = this.preparePlugins('sheet')
 
     const _availablePlugins: Set<string> = new Set(availablePlugins)
 
@@ -371,7 +375,8 @@ class ShimoCabinet extends TinyEmitter {
       editorOptions: this.editorOptions as ShimoSDK.Sheet.EditorOptions,
       availablePlugins: Array.from(_availablePlugins),
       getPlugin,
-      onError: err => this.emit('error', err)
+      onError: err => this.emit('error', err),
+      async: asyncMode
     })
 
     this.sheet = shimoSheetCabinet
@@ -401,7 +406,7 @@ class ShimoCabinet extends TinyEmitter {
 
     const sdkDocument = this.getSDK('document')
 
-    const { availablePlugins, getPlugin } = this.preparePlugins('document')
+    const { availablePlugins, getPlugin, asyncMode } = this.preparePlugins('document')
 
     const _availablePlugins: Set<string> = new Set(availablePlugins)
     _availablePlugins.add('Toolbar')
@@ -423,7 +428,8 @@ class ShimoCabinet extends TinyEmitter {
       }) as ShimoSDK.Document.EditorOptions,
       availablePlugins: Array.from(_availablePlugins),
       getPlugin,
-      onError: err => this.emit('error', err)
+      onError: err => this.emit('error', err),
+      async: asyncMode
     })
 
     this.document = shimoDocumentCabinet
