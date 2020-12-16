@@ -324,8 +324,12 @@ class ShimoCabinet extends TinyEmitter {
           if (!loadedResources[key] && item[pn]) {
             await this.externalLoader(item[pn])
             loadedResources[key] = true
+          }
+
+          if (sdk.plugins[name]) {
             return sdk.plugins[name]
           }
+
           throw new Error(`Plugin ${name} is not defined in externals.`)
         }
 
