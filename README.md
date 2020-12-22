@@ -346,6 +346,7 @@ cabinet('error', errorHandler)
 
 - `error`：任何在运行中，无法正常抛出的错误都会用此事件抛出
 - `readyState`：状态变更时会触发事件，可用事件列表在 `ShimoCabinet.ReadyState` 中可查
+- `debug`：输出用于调试用的信息
 
 #### 移动端适配
 

@@ -175,6 +175,13 @@ class ShimoCabinet extends TinyEmitter {
     } else {
       this.externalLoader = options.externalLoader
     }
+
+    this.emit('debug', {
+      msg: 'cabinet inited',
+      entrypoint: this.entrypoint,
+      editorOptions: this.editorOptions,
+      externals: this.externals
+    })
   }
 
   get container () {
@@ -198,7 +205,13 @@ class ShimoCabinet extends TinyEmitter {
     const tasks: Promise<any>[] = []
 
     if (!this.file || !this.file.config) {
-      tasks.push(this.fetchOptions())
+      tasks.push(this.fetchOptions().then(res => {
+        this.emit('debug', {
+          msg: 'file loaded',
+          file: this.file
+        })
+        return res
+      }))
     }
 
     if (this.externals) {
@@ -207,6 +220,11 @@ class ShimoCabinet extends TinyEmitter {
 
       forIn(this.externals.common, (v: string, sub) => {
         const key = `common.${sub}`
+        this.emit('debug', {
+          msg: 'loading module',
+          module: key,
+          cached: !!loadedResources[key]
+        })
         if (!loadedResources[key]) {
           _tasks.push(load(key, v))
         }
@@ -226,6 +244,11 @@ class ShimoCabinet extends TinyEmitter {
           }
 
           const editorKey = `${main}.editor`
+          this.emit('debug', {
+            msg: 'loading module',
+            module: editorKey,
+            cached: !!loadedResources[editorKey]
+          })
           if (!loadedResources[editorKey]) {
             p = load(editorKey, v['editor'])
           }
@@ -335,6 +358,14 @@ class ShimoCabinet extends TinyEmitter {
         getPlugin = async (name: string) => {
           const pn = pluginListR[name]
           const key = `${type}.${pn}`
+
+          this.emit('debug', {
+            msg: 'loading module',
+            module: key,
+            cached: !!loadedResources[key],
+            inExternal: !!item[pn]
+          })
+
           if (!loadedResources[key] && item[pn]) {
             await this.externalLoader(item[pn])
             loadedResources[key] = true
