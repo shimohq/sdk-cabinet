@@ -21,7 +21,8 @@ export const sheetPluginList = {
   pivotTable: 'PivotTable',
   print: 'Print',
   shortcut: 'Shortcut',
-  toolbar: 'Toolbar'
+  toolbar: 'Toolbar',
+  contextmenu: 'ContextMenu'
 }
 
 export const sheetPluginListReverse = {
@@ -42,7 +43,8 @@ export const sheetPluginListReverse = {
   PivotTable: 'pivotTable',
   Print: 'print',
   Shortcut: 'shortcut',
-  Toolbar: 'toolbar'
+  Toolbar: 'toolbar',
+  ContextMenu: 'contextmenu'
 }
 
 export const documentPluginList = {
