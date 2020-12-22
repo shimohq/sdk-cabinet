@@ -307,11 +307,22 @@ class ShimoCabinet extends TinyEmitter {
     let asyncMode = false
 
     if (this.externals && this.externals[type]) {
-      const item = this.externals[type]
+      const item = {}
+      forIn(this.externals[type], (v, k) => {
+        item[k.toLowerCase()] = v
+      })
 
       if (type === 'sheet' || type === 'document') {
-        const pluginList = type === 'sheet' ? sheetPluginList : documentPluginList
-        const pluginListR = type === 'sheet' ? sheetPluginListReverse : documentPluginListReverse
+        const pluginList = {}
+        forIn(type === 'sheet' ? sheetPluginList : documentPluginList, (v, k) => {
+          pluginList[k.toLowerCase()] = v
+        })
+
+        const pluginListR = {}
+        forIn(type === 'sheet' ? sheetPluginListReverse : documentPluginListReverse, (v, k) => {
+          pluginListR[k] = v.toLowerCase()
+        })
+
         asyncMode = true
 
         availablePlugins = Object.keys(item).reduce((plugins, key: string) => {
