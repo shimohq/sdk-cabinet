@@ -176,12 +176,12 @@ class ShimoCabinet extends TinyEmitter {
       this.externalLoader = options.externalLoader
     }
 
-    this.emit('debug', {
+    setTimeout(() => this.emit('debug', {
       msg: 'cabinet inited',
       entrypoint: this.entrypoint,
       editorOptions: this.editorOptions,
       externals: this.externals
-    })
+    }))
   }
 
   get container () {

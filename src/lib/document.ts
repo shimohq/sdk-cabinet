@@ -93,7 +93,12 @@ export default class ShimoDocumentCabinet extends CabinetBase {
       {
         Revision: false
       },
-      plugin => plugin !== 'Mobile'
+      plugin => {
+        if (plugin === 'mobile') {
+          return !!this.editorOptions.isMobile
+        }
+        return true
+      }
     )
     this._commentShowCount = 0
     this.getPlugin = options.getPlugin
@@ -152,13 +157,20 @@ export default class ShimoDocumentCabinet extends CabinetBase {
       }
     )
     editor.setContent(this.file.content)
-    this.emitter('error', 'holyshit')
-    this.emitter('readyState', 'yeah')
     this.emitter(events.readyState, { [events.readyState]: ReadyState.editorReady })
 
     const p = Promise
       .all(this.availablePlugins.map(p => this.initPlugin(editor, p)))
-      .then(() => this.initCollaboration(editor))
+      .then(() => {
+        this.initCollaboration(editor)
+
+        if (this.editorOptions.isMobile) {
+          document.body.classList.add('in-mobile')
+          editorElm.classList.add('in-mobile')
+          editorScroller.classList.add('in-mobile')
+          this.initMobile(editor, this.element, editorElm)
+        }
+      })
       .catch(err => this.onError(err))
       .then(() => {
         this.emitter(events.readyState, { [events.readyState]: ReadyState.pluginReady })
@@ -167,13 +179,6 @@ export default class ShimoDocumentCabinet extends CabinetBase {
       .catch(err => this.onError(err))
     if (!this.async) {
       await p
-    }
-
-    if (this.editorOptions.isMobile) {
-      document.body.classList.add('in-mobile')
-      editorElm.classList.add('in-mobile')
-      editorScroller.classList.add('in-mobile')
-      this.initMobile(editor, editorElm)
     }
 
     this.editor = editor
@@ -192,7 +197,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
 
     const method = `init${plugin}`
     if (typeof this[method] === 'function') {
-      if (plugin !== 'Collaboration') {
+      if (plugin !== 'Mobile' && plugin !== 'Collaboration') {
         this[method](editor)
       }
     }
@@ -225,7 +230,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     return new this.sdkDocument.Editor(options)
   }
 
-  public initMobile (editor: ShimoSDK.Document.Editor, editorElm: HTMLElement): void {
+  public initMobile (editor: ShimoSDK.Document.Editor, container: HTMLElement, editorElm: HTMLElement): void {
     if (this.editorOptions.isMobile) {
       const options = assign(
         {
@@ -234,6 +239,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
         this.pluginOptions.Mobile,
         {
           editor,
+          container,
           editorWrap: editorElm,
           comment: this.plugins.comment,
           toolbar: true
