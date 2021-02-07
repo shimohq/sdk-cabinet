@@ -22,7 +22,8 @@ export const sheetPluginList = {
   print: 'Print',
   shortcut: 'Shortcut',
   toolbar: 'Toolbar',
-  contextmenu: 'ContextMenu'
+  contextmenu: 'ContextMenu',
+  mobileSheetTab: 'MobileSheetTab'
 }
 
 export const sheetPluginListReverse = {
@@ -44,7 +45,8 @@ export const sheetPluginListReverse = {
   Print: 'print',
   Shortcut: 'shortcut',
   Toolbar: 'toolbar',
-  ContextMenu: 'contextmenu'
+  ContextMenu: 'contextmenu',
+  MobileSheetTab: 'mobileSheetTab'
 }
 
 export const documentPluginList = {
