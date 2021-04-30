@@ -5,11 +5,11 @@
   "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npm run compile",
+    "build": "npm run clean && npm run compile",
     "lint": "eslint --ext .js . && tslint --format stylish --project .",
     "clean": "del dist",
-    "compile": "npm run clean && npx webpack",
-    "prepack": "NODE_ENV=production npm run clean && npm run build"
+    "compile": "npx webpack",
+    "prepublishOnly": "NODE_ENV=production npm run build"
   },
   "author": "fghpdf",
   "license": "ISC",
