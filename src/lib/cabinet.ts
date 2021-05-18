@@ -305,7 +305,7 @@ class ShimoCabinet extends TinyEmitter {
       return
     }
 
-    const res = await fetch(`${this.entrypoint}/files/${this.fileGuid}?withConfig=true`, {
+    const res = await fetch(`${this.entrypoint}/files/${this.fileGuid}?withConfig=true&contentUrl=true`, {
       headers: {
         'content-type': 'application/json',
         authorization: `bearer ${this.token}`
@@ -313,8 +313,25 @@ class ShimoCabinet extends TinyEmitter {
     })
     const text = await res.text()
     assert(res.status === 200, `Failed to get file: ${text}`)
-    const file = JSON.parse(text)
+    const file: ShimoSDK.File = JSON.parse(text)
     assert(file && file.config != null, `Invalid file: ${file}`)
+
+    if (typeof file.contentUrl === 'string' && !file.content) {
+      const res = await fetch(file.contentUrl)
+      file.content = await res.text()
+
+      let rawHead = ''
+      for (const [k, v] of res.headers.entries()) {
+        if (/x-[a-z]+-meta-head/i.test(k)) {
+          rawHead = v
+          break
+        }
+      }
+      const head = parseInt(rawHead, 10)
+      assert(!isNaN(head), `invalid file head: ${rawHead}`)
+      file.head = head
+    }
+
     this.user = file.config.user
     this.file = file
   }

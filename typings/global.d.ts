@@ -50,6 +50,7 @@ interface IFile {
   guid: string
   head: number
   content: string
+  contentUrl?: string
   type: string
   config: {
     entrypoint: string,
