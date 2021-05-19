@@ -314,6 +314,7 @@ class ShimoCabinet extends TinyEmitter {
     const text = await res.text()
     assert(res.status === 200, `Failed to get file: ${text}`)
     const file: ShimoSDK.File = JSON.parse(text)
+    // tslint:disable-next-line strict-type-predicates
     assert(file && file.config != null, `Invalid file: ${file}`)
 
     if (typeof file.contentUrl === 'string' && !file.content) {
