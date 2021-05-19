@@ -1,7 +1,7 @@
 import 'promise-polyfill/src/polyfill'
 import assign from 'object-assign'
 import get from 'lodash.get'
-import fetch from 'unfetch'
+import axios from 'axios'
 import forIn from 'lodash.forin'
 import { TinyEmitter } from 'tiny-emitter'
 
@@ -317,16 +317,19 @@ class ShimoCabinet extends TinyEmitter {
     assert(file && file.config != null, `Invalid file: ${file}`)
 
     if (typeof file.contentUrl === 'string' && !file.content) {
-      const res = await fetch(file.contentUrl)
-      file.content = await res.text()
+      const res = await axios.get(file.contentUrl, {
+        responseType: 'text',
+        transformResponse: [(data) => data]
+      })
+      file.content = res.data
 
       let rawHead = ''
-      for (const [k, v] of res.headers.entries()) {
+      forIn(res.headers, (v, k) => {
         if (/x-[a-z]+-meta-head/i.test(k)) {
           rawHead = v
-          break
+          return false
         }
-      }
+      })
       const head = parseInt(rawHead, 10)
       assert(!isNaN(head), `invalid file head: ${rawHead}`)
       file.head = head
