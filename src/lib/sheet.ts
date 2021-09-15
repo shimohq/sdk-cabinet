@@ -44,7 +44,6 @@ class ShimoSheetCabinet extends CabinetBase {
   private sdkSheet: any
   private sdkCommon: any
   private user: ShimoSDK.User
-  private entrypoint: string
   private token: string
   private file: ShimoSDK.File
   private editorOptions: ShimoSDK.Sheet.EditorOptions
@@ -547,9 +546,9 @@ class ShimoSheetCabinet extends CabinetBase {
         }
 
         const showAlert = this.sdkSheet.sheets.utils.showAlert
-        const confirm = this.sdkSheet.sheets.utils.confirm
+        const hideAlert = this.sdkSheet.sheets.utils.hideAlert
 
-        return (status: ShimoSDK.Common.CollaborationStatus) => {
+        return (status: ShimoSDK.Common.CollaborationStatus, data: any) => {
           const text = getText(status)
           switch (status) {
             case STATUS.ONLINE_SAVING:
@@ -558,42 +557,39 @@ class ShimoSheetCabinet extends CabinetBase {
 
             case STATUS.ONLINE_SAVED:
               this.updateEditorOptions()
+              hideAlert()
               changeText(text)
               break
 
             case STATUS.OFFLINE:
-              this.updateEditorOptions({ commentable: false, editable: false })
               changeText(text)
 
-              if (
-                this.collaboration.haveUnsavedChange() ||
-                !this.editor.isCsQueueEmpty()
-              ) {
-                confirm({
-                  title: '表格已离线',
-                  description:
-                    '您的网络已经断开，无法继续编写！</br>为了防止数据丢失，请在刷新前手动保存最近的修改。',
-                  buttons: [
-                    {
-                      type: 'button',
-                      buttonLabel: '确定',
-                      customClass: 'btn-ok',
-                      closeAfterClick: true
-                    }
-                  ]
-                })
-              } else {
-                showAlert({
-                  title: '您的网络已经断开，无法继续编写！',
-                  type: 'error'
-                })
+              // data.forceOffine 代表发送的改动 2 分钟内没收到 acceptCommit
+              if (!(data && data.forceOffline)) {
+                return
               }
 
+              this.updateEditorOptions({ commentable: false, editable: false })
+
+              showAlert({
+                title: '网络已断开，无法继续编写，请等待网络恢复',
+                type: 'error',
+                autoHide: false
+              })
+
+              this.log('warning', {
+                event: 'offline',
+                fileType: 'sheet',
+                fileGuid: this.file.guid,
+                haveUnsavedChange: this.collaboration.haveUnsavedChange(),
+                isCsQueueEmpty: this.editor.isCsQueueEmpty()
+              })
               break
 
             case STATUS.ONLINE:
               changeText(text)
               this.updateEditorOptions()
+              // 仅网络恢复不消除离线提示
               break
 
             // 在线保存失败
@@ -601,13 +597,14 @@ class ShimoSheetCabinet extends CabinetBase {
               // 禁用编辑器
               this.updateEditorOptions({ commentable: false, editable: false })
               changeText(text)
-              showAlert({ title: '保存失败，请刷新当前页面！', type: 'error' })
+              showAlert({ title: '保存失败，请刷新页面重试', type: 'error', autoHide: false })
               break
 
             // 离线保存失败
             case STATUS.OFFLINE_SAVE_FAILED:
               changeText(text)
               // 禁用编辑器
+              showAlert({ title: '保存失败，请刷新页面重试', type: 'error', autoHide: false })
               this.updateEditorOptions({ commentable: false, editable: false })
               break
           }

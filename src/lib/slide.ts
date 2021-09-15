@@ -6,7 +6,6 @@ class ShimoSlideCabinet extends CabinetBase {
   private sdkSlide: any
   private sdkCommon: any
   private user: ShimoSDK.User
-  private entrypoint: string
   private token: string
   private file: ShimoSDK.File
   private editorOptions: ShimoSDK.Slide.EditorOptions
