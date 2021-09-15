@@ -44,7 +44,6 @@ class ShimoSheetCabinet extends CabinetBase {
   private sdkSheet: any
   private sdkCommon: any
   private user: ShimoSDK.User
-  private entrypoint: string
   private token: string
   private file: ShimoSDK.File
   private editorOptions: ShimoSDK.Sheet.EditorOptions
@@ -547,9 +546,8 @@ class ShimoSheetCabinet extends CabinetBase {
         }
 
         const showAlert = this.sdkSheet.sheets.utils.showAlert
-        const confirm = this.sdkSheet.sheets.utils.confirm
 
-        return (status: ShimoSDK.Common.CollaborationStatus) => {
+        return (status: ShimoSDK.Common.CollaborationStatus, data: any) => {
           const text = getText(status)
           switch (status) {
             case STATUS.ONLINE_SAVING:
@@ -562,33 +560,27 @@ class ShimoSheetCabinet extends CabinetBase {
               break
 
             case STATUS.OFFLINE:
-              this.updateEditorOptions({ commentable: false, editable: false })
               changeText(text)
 
-              if (
-                this.collaboration.haveUnsavedChange() ||
-                !this.editor.isCsQueueEmpty()
-              ) {
-                confirm({
-                  title: '表格已离线',
-                  description:
-                    '您的网络已经断开，无法继续编写！</br>为了防止数据丢失，请在刷新前手动保存最近的修改。',
-                  buttons: [
-                    {
-                      type: 'button',
-                      buttonLabel: '确定',
-                      customClass: 'btn-ok',
-                      closeAfterClick: true
-                    }
-                  ]
-                })
-              } else {
-                showAlert({
-                  title: '您的网络已经断开，无法继续编写！',
-                  type: 'error'
-                })
+              // data.forceOffine 代表发送的改动 2 分钟内没收到 acceptCommit
+              if (!(data && data.forceOffline)) {
+                return
               }
 
+              this.updateEditorOptions({ commentable: false, editable: false })
+
+              showAlert({
+                title: '网络已断开，无法继续编写，请等待网络恢复',
+                type: 'error'
+              })
+
+              this.log('warning', {
+                event: 'offline',
+                fileType: 'sheet',
+                fileGuid: this.file.guid,
+                haveUnsavedChange: this.collaboration.haveUnsavedChange(),
+                isCsQueueEmpty: this.editor.isCsQueueEmpty()
+              })
               break
 
             case STATUS.ONLINE:

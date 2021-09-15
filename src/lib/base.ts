@@ -1,5 +1,6 @@
 import isObject from 'lodash.isobject'
 import forIn from 'lodash.forin'
+import axios from 'axios'
 
 export type emitter = (event: string, ...args: any[]) => void
 
@@ -9,6 +10,7 @@ export default class CabinetBase {
   protected availablePlugins: string[]
   protected pluginOptions: ShimoSDK.Document.Plugins | ShimoSDK.Sheet.Plugins
   protected emitter: emitter
+  protected entrypoint: string
 
   constructor (element: HTMLElement) {
     this.element = element
@@ -141,6 +143,21 @@ export default class CabinetBase {
       if (typeof this[method] === 'function') {
         this[method](editor)
       }
+    }
+  }
+
+  protected async log (level: 'info' | 'warning' | 'error', data: { event: string, [key: string]: any }) {
+    if (!this.entrypoint) {
+      return
+    }
+
+    try {
+      await axios.post(`${this.entrypoint}/log`, {
+        level,
+        data
+      })
+    } catch (e) {
+      console.error('Log to server error', e, level, data)
     }
   }
 }

@@ -51,7 +51,6 @@ export default class ShimoDocumentCabinet extends CabinetBase {
   private user: ShimoSDK.User
   private editorOptions: ShimoSDK.Document.EditorOptions
   private file: ShimoSDK.File
-  private entrypoint: string
   private token: string
   private _commentShowCount: number
   private onError: (error: any) => void
