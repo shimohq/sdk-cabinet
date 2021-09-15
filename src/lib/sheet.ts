@@ -546,6 +546,7 @@ class ShimoSheetCabinet extends CabinetBase {
         }
 
         const showAlert = this.sdkSheet.sheets.utils.showAlert
+        const hideAlert = this.sdkSheet.sheets.utils.hideAlert
 
         return (status: ShimoSDK.Common.CollaborationStatus, data: any) => {
           const text = getText(status)
@@ -556,6 +557,7 @@ class ShimoSheetCabinet extends CabinetBase {
 
             case STATUS.ONLINE_SAVED:
               this.updateEditorOptions()
+              hideAlert()
               changeText(text)
               break
 
@@ -571,7 +573,8 @@ class ShimoSheetCabinet extends CabinetBase {
 
               showAlert({
                 title: '网络已断开，无法继续编写，请等待网络恢复',
-                type: 'error'
+                type: 'error',
+                autoHide: false
               })
 
               this.log('warning', {
@@ -586,6 +589,7 @@ class ShimoSheetCabinet extends CabinetBase {
             case STATUS.ONLINE:
               changeText(text)
               this.updateEditorOptions()
+              // 仅网络恢复不消除离线提示
               break
 
             // 在线保存失败
@@ -593,13 +597,14 @@ class ShimoSheetCabinet extends CabinetBase {
               // 禁用编辑器
               this.updateEditorOptions({ commentable: false, editable: false })
               changeText(text)
-              showAlert({ title: '保存失败，请刷新当前页面！', type: 'error' })
+              showAlert({ title: '保存失败，请刷新页面重试', type: 'error', autoHide: false })
               break
 
             // 离线保存失败
             case STATUS.OFFLINE_SAVE_FAILED:
               changeText(text)
               // 禁用编辑器
+              showAlert({ title: '保存失败，请刷新页面重试', type: 'error', autoHide: false })
               this.updateEditorOptions({ commentable: false, editable: false })
               break
           }
