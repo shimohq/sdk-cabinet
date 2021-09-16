@@ -577,7 +577,7 @@ class ShimoSheetCabinet extends CabinetBase {
                 autoHide: false
               })
 
-              this.log('warning', {
+              this.log('warn', {
                 event: 'offline',
                 fileType: 'sheet',
                 fileGuid: this.file.guid,

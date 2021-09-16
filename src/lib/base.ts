@@ -146,7 +146,7 @@ export default class CabinetBase {
     }
   }
 
-  protected async log (level: 'info' | 'warning' | 'error', data: { event: string, [key: string]: any }) {
+  protected async log (level: 'info' | 'warn' | 'error', data: { event: string, [key: string]: any }) {
     if (!this.entrypoint) {
       return
     }
