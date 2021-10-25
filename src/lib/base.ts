@@ -160,4 +160,13 @@ export default class CabinetBase {
       console.error('Log to server error', e, level, data)
     }
   }
+
+  protected promptIfHasUnsavedChanges (collaboration: ShimoSDK.Common.Collaboration) {
+    window.addEventListener('beforeunload', (e: BeforeUnloadEvent) => {
+      if (collaboration.haveUnsavedChange()) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    })
+  }
 }

@@ -86,6 +86,7 @@ class ShimoSlideCabinet extends CabinetBase {
       selectUrl: urlPrefix + '/select' + urlSuffix
     })
     collaboration.start()
+    this.promptIfHasUnsavedChanges(collaboration)
     this.plugins.collaboration = collaboration
     this.emitter(events.readyState, { [events.readyState]: ReadyState.pluginReady })
     this.emitter(events.readyState, { [events.readyState]: ReadyState.allReady })
