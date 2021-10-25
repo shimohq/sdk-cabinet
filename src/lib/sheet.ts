@@ -511,6 +511,7 @@ class ShimoSheetCabinet extends CabinetBase {
     )
     const collaboration: ShimoSDK.Common.Collaboration = new this.sdkCommon.Collaboration(collaborationOptions)
     collaboration.start()
+    this.promptIfHasUnsavedChanges(collaboration)
 
     this.plugins.collaboration = this.collaboration = collaboration
 

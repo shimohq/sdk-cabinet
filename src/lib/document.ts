@@ -395,6 +395,7 @@ export default class ShimoDocumentCabinet extends CabinetBase {
     }
 
     collaboration.start()
+    this.promptIfHasUnsavedChanges(collaboration)
     if (collaborators) {
       collaborators.render(collaboration)
     }

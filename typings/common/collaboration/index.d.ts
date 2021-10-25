@@ -83,4 +83,5 @@ export default class Collaboration extends EventEmitter<Events> {
   start (): void
   destroy (): void
   getCollaborators (): IUser[]
+  haveUnsavedChange (): boolean
 }
